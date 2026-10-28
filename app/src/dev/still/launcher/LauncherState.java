@@ -60,7 +60,7 @@ public final class LauncherState {
       try {
         return valueOf(name);
       } catch (IllegalArgumentException | NullPointerException ignored) {
-        return VIOLET;
+        return AMBER;
       }
     }
   }

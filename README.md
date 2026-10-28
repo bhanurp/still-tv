@@ -9,7 +9,7 @@ A small native Android TV launcher with a spacious, Apple TV–inspired app grid
 - **Settings → System settings** opens Android settings. **Restore original launcher** switches the default Home back to the preserved original launcher.
 - Native Java/Android Views, Android 8.0/API 26 or later. Tested initially on one Android 11 television; behavior can differ by firmware.
 - Bundled DM Sans typography, a fixed navigation bar, single-view app tiles, progressive background artwork loading, and bounded artwork caches.
-- Matching 36sp wordmark/clock typography. Preview Electric violet, Electric cyan, or Neon amber under **Settings → Appearance → Accent**; **Keep color** saves the choice and **Cancel** restores it. Accents adapt for contrast in Light.
+- Matching 36sp wordmark/clock typography. Neon amber is the default accent. Preview Electric violet, Electric cyan, or Neon amber under **Settings → Appearance → Accent**; **Keep color** saves the choice and **Cancel** restores it. Accents adapt for contrast in Light.
 
 This changes the home screen. It does not repair freezes inside streaming apps, improve internet service, or guarantee a particular frame rate.
 

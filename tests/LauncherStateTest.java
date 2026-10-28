@@ -34,8 +34,8 @@ public final class LauncherStateTest {
             "accent contrast " + theme + accent);
       }
     }
-    check(LauncherState.Accent.parse(null) == LauncherState.Accent.VIOLET, "missing accent");
-    check(LauncherState.Accent.parse("broken") == LauncherState.Accent.VIOLET, "invalid accent");
+    check(LauncherState.Accent.parse(null) == LauncherState.Accent.AMBER, "missing accent");
+    check(LauncherState.Accent.parse("broken") == LauncherState.Accent.AMBER, "invalid accent");
     check(LauncherState.Accent.parse("CYAN") == LauncherState.Accent.CYAN, "saved accent");
     System.out.println("Launcher state: 26 checks passed");
   }
