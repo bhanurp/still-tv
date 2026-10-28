@@ -1,0 +1,11 @@
+.toolchain/
+build/
+*.jks
+*.keystore
+*.apk
+*.idsig
+.DS_Store
+local.properties
+__pycache__/
+installation-state.json
+*.log

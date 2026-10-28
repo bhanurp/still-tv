@@ -1,0 +1,31 @@
+name: Build and test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Test and build
+        run: |
+          export STILL_JAVA_HOME="$JAVA_HOME"
+          export STILL_BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          export STILL_ANDROID_JAR="$ANDROID_HOME/platforms/android-35/android.jar"
+          sh test.sh
+          sh build.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: still-tv-development-apk
+          path: build/still-tv.apk
+          if-no-files-found: error
+          retention-days: 7
