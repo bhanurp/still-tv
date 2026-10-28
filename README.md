@@ -8,6 +8,8 @@ A small native Android TV launcher with a spacious, Apple TV–inspired app grid
 - Discovers installed TV apps and loads their existing banners. No recommendation feeds, video previews, ads, analytics, network permission, or account service.
 - **Settings → System settings** opens Android settings. **Open original Home** opens the preserved original launcher.
 - Native Java/Android Views, Android 8.0/API 26 or later. Tested initially on one Android 11 television; behavior can differ by firmware.
+- Bundled DM Sans typography, a fixed navigation bar, single-view app tiles, progressive background artwork loading, and bounded artwork caches.
+- Matching wordmark/clock typography with mint accents in dark themes and a contrast-safe teal accent in Light.
 
 This changes the home screen. It does not repair freezes inside streaming apps, improve internet service, or guarantee a particular frame rate.
 
@@ -61,3 +63,5 @@ Recovery verifies that original Home is installed/enabled, restores and reads ba
 Licensed under the [MIT License](LICENSE). Provided **AS IS, without warranty**, with the license's disclaimer of author/copyright-holder liability. Nothing here promises universal compatibility or unconditional recovery. A disclaimer is not a guarantee of immunity from every legal claim.
 
 Third-party apps and their names, icons and banners belong to their respective owners. App artwork is read from packages already installed on the TV and is not bundled with this project. This project is independent of Apple, Google and TV manufacturers.
+
+DM Sans is bundled under the [SIL Open Font License](app/assets/fonts/OFL.txt), separate from the MIT license for the launcher code. Font source: [Google Fonts / DM Sans](https://github.com/google/fonts/tree/main/ofl/dmsans).

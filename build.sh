@@ -7,8 +7,9 @@ STILL_PLATFORM="${STILL_ANDROID_JAR:-$PWD/.toolchain/platform/android.jar}"
 export JAVA_HOME="$STILL_JAVA"
 export PATH="$STILL_JAVA/bin:$PATH"
 mkdir -p build/compiled build/generated build/classes build/dex
+find build/classes build/generated build/dex -type f \( -name '*.class' -o -name '*.java' -o -name '*.dex' \) -delete
 "$STILL_TOOLS/aapt2" compile --dir app/res -o build/resources.zip
-"$STILL_TOOLS/aapt2" link -o build/base.apk -I "$STILL_PLATFORM" --manifest app/AndroidManifest.xml --java build/generated build/resources.zip
+"$STILL_TOOLS/aapt2" link -o build/base.apk -I "$STILL_PLATFORM" -A app/assets --manifest app/AndroidManifest.xml --java build/generated build/resources.zip
 find app/src build/generated -name '*.java' > build/sources.txt
 javac --release 8 -classpath "$STILL_PLATFORM" -d build/classes @build/sources.txt
 find build/classes -name '*.class' > build/classes.txt
