@@ -271,6 +271,7 @@ public final class MainActivity extends Activity {
     private Button nav(String label, Runnable action) {
         Button button=new Button(this); button.setText(label); button.setTextSize(14); button.setAllCaps(false);
         button.setFocusableInTouchMode(true);
+        button.setStateListAnimator(null); button.setElevation(0f);
         button.setTextColor(color(theme.muted)); button.setMinWidth(dp(72)); button.setMinimumHeight(dp(40));
         button.setBackground(shape(theme.background,0));
         button.setOnClickListener(v->action.run());
