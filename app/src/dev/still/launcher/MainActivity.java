@@ -346,6 +346,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
               "System settings",
               "Use Still TV as Home",
               "Restore original launcher",
+              "Start on boot · " + BootStartup.status(this, prefs),
               "Recovery information"
             },
             (d, which) -> {
@@ -368,17 +369,54 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
                               + " recovery.",
                           Toast.LENGTH_LONG)
                       .show();
-              } else
+              } else if (which == 4) showBootStartup();
+              else
                 dialog()
                     .setTitle("Original launcher preserved")
                     .setMessage(
                         "Still TV never disables or removes your original launcher. Restore"
                             + " original launcher switches back while keeping Still TV available in"
-                            + " Apps. ADB recovery is available if the screen freezes. Java crash"
-                            + " recovery is best effort.")
+                            + " Apps, and turns off boot startup. ADB recovery is available if the"
+                            + " screen freezes. Java crash recovery is best effort.")
                     .setPositiveButton("OK", null)
                     .show();
             })
+        .show();
+  }
+
+  private void showBootStartup() {
+    dialog()
+        .setTitle("Start Still TV on boot")
+        .setSingleChoiceItems(
+            new String[] {"Off", "On"},
+            prefs.getBoolean(BootStartup.ENABLED, false) ? 1 : 0,
+            (d, which) -> {
+              boolean enabled = which == 1;
+              if (!prefs.edit().putBoolean(BootStartup.ENABLED, enabled).commit()) {
+                Toast.makeText(this, "Couldn't save startup preference", Toast.LENGTH_LONG).show();
+                return;
+              }
+              d.dismiss();
+              if (enabled && !BootStartup.canLaunch(this)) {
+                dialog()
+                    .setTitle("Allow boot startup")
+                    .setMessage(
+                        "Android requires display-over-other-apps access to open Still TV after"
+                            + " boot. Still TV does not draw overlay windows. Enable access on the"
+                            + " next screen, then return here. Restore original launcher also turns"
+                            + " startup off.")
+                    .setPositiveButton(
+                        "Open settings",
+                        (a, b) ->
+                            openSystem(
+                                new Intent(
+                                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:" + getPackageName()))))
+                    .setNegativeButton("Later", null)
+                    .show();
+              }
+            })
+        .setNegativeButton("Cancel", null)
         .show();
   }
 

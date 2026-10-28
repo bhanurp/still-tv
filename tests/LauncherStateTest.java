@@ -37,7 +37,12 @@ public final class LauncherStateTest {
     check(LauncherState.Accent.parse(null) == LauncherState.Accent.AMBER, "missing accent");
     check(LauncherState.Accent.parse("broken") == LauncherState.Accent.AMBER, "invalid accent");
     check(LauncherState.Accent.parse("CYAN") == LauncherState.Accent.CYAN, "saved accent");
-    System.out.println("Launcher state: 26 checks passed");
+    check(LauncherState.shouldStartOnBoot(true, false, true), "enabled startup");
+    check(!LauncherState.shouldStartOnBoot(false, false, true), "startup disabled by owner");
+    check(!LauncherState.shouldStartOnBoot(true, true, true), "crash recovery suppresses startup");
+    check(!LauncherState.shouldStartOnBoot(true, false, false), "missing background launch access");
+    check(!LauncherState.shouldStartOnBoot(false, true, false), "disabled startup stays off");
+    System.out.println("Launcher state: 31 checks passed");
   }
 
   private static double contrast(String a, String b) {

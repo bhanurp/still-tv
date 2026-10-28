@@ -65,6 +65,10 @@ public final class LauncherState {
     }
   }
 
+  public static boolean shouldStartOnBoot(boolean enabled, boolean safeMode, boolean allowed) {
+    return enabled && !safeMode && allowed;
+  }
+
   public static List<String> favoritePackages(String saved, List<String> available) {
     List<String> preferred =
         Arrays.asList(

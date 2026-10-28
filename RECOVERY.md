@@ -13,11 +13,13 @@ Still TV and its tooling must never disable, uninstall, clear data from, or repl
 
 ## Normal exit
 
-**Settings → Restore original launcher** disables only Still TV’s own Home alias and opens the saved original Home. The app verifies that the saved original now resolves Home before reporting success. If verification or launch fails, it restores Still TV’s previous Home-entry state. Still TV stays installed and can be opened from Apps. **Use Still TV as Home** enables its Home entry again and opens Android’s Home selection where the firmware supports it.
+**Settings → Restore original launcher** first turns off boot startup, then disables only Still TV’s own Home alias and opens the saved original Home. The app verifies that the saved original now resolves Home before reporting success. If verification or launch fails, it restores Still TV’s previous Home-entry state and startup preference. Still TV stays installed and can be opened from Apps. **Use Still TV as Home** enables its Home entry again and opens Android’s Home selection where the firmware supports it.
 
 ## Crash recovery
 
 For an uncaught Java exception, a process-level handler saves a recovery flag, disables only Still TV’s own Home alias, and tries to open original Home before handing the exception to Android. On a later Home launch while this flag is set, Still TV forwards to original Home. Opening Still TV explicitly instead offers a recovery dialog with **Open original Home**, **Try Still TV again**, and **System settings**.
+
+Boot startup is opt-in. A BOOT_COMPLETED receiver opens the app once only when startup is enabled, recovery mode is clear, and Android permits the launch. It does not run a persistent service. Use **Settings → Start on boot → Off** to stop startup independently.
 
 This is best effort. A frozen main thread, native crash, low-memory kill, power loss, or Android restrictions may prevent in-process recovery. There is no claim that an app can always repair its own failure or silently reassign the Home role. A computer with working ADB supplies the independent recovery route below. Without ADB, use the TV's Home-app selection/settings where supported.
 

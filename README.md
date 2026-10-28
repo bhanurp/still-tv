@@ -4,6 +4,7 @@ A small native Android TV launcher with a spacious, Apple TV–inspired app grid
 
 - Large app tiles and D-pad focus transitions.
 - **Dark**, **Super Dark** (default), and **Light** themes under **Settings → Appearance → Theme**. Theme choice persists locally.
+- Optional **Settings → Start on boot** opens Still TV automatically after Android finishes booting. **Restore original launcher** also turns this off.
 - Favorites: hold OK or press Menu on an app to pin/unpin it or open Android app information.
 - Discovers installed TV apps and loads their existing banners. No recommendation feeds, video previews, ads, analytics, network permission, or account service.
 - **Settings → System settings** opens Android settings. **Restore original launcher** switches the default Home back to the preserved original launcher.
@@ -50,6 +51,14 @@ adb -s TV_SERIAL shell cmd package set-home-activity --user 0 dev.still.launcher
 If the Home entry was previously disabled by restoration, first select **Use Still TV as Home** in the app. Some TVs give their system launcher higher intent priority: even a successful ADB Home-role assignment may leave the original handling Home. Verify the actual Home button; this project does not disable the original launcher to bypass that restriction.
 
 **Settings → Restore original launcher** removes only Still TV’s Home entry from selection and opens the saved original launcher. Still TV remains available in Apps. Verify recovery on your own firmware before switching; never disable or uninstall the original launcher to force a switch.
+
+## Start automatically after boot
+
+Select **Settings → Start on boot → On**. On Android 10 or later, if Still TV does not actually handle Home, enable its **display over other apps** access on the system page offered by the app. This access permits boot-time Activity launch; Still TV does not draw overlay windows. The status remains **Permission needed** until the access is granted.
+
+Startup is opt-in and defaults off on new installations. It makes one launch attempt after `BOOT_COMPLETED`, with no background service, polling, or repeated interruption of other apps. Detected crash recovery suppresses startup. **Settings → Restore original launcher** turns startup off and restores the preserved Home behavior.
+
+Boot startup opens Still TV after Android starts. It does not change Sony firmware's Home-button priority. Turning the TV off/on in standby can resume the current app without a full Android boot. Behavior should be verified on each TV firmware. Android's [background Activity launch rules](https://developer.android.com/guide/components/activities/secure-bal) explain the special-access requirement.
 
 ## Recovery
 

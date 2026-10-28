@@ -1,4 +1,4 @@
-.toolchain/
+.toolchain
 build/
 *.jks
 *.keystore

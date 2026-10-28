@@ -44,16 +44,20 @@ final class Recovery {
     if (original == null) return false;
     PackageManager pm = context.getPackageManager();
     ComponentName entry = homeEntry(context);
+    boolean previousStartup = prefs.getBoolean(BootStartup.ENABLED, false);
+    if (!prefs.edit().putBoolean(BootStartup.ENABLED, false).commit()) return false;
     int previous;
     try {
       previous = pm.getComponentEnabledSetting(entry);
       pm.setComponentEnabledSetting(
           entry, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     } catch (RuntimeException ignored) {
+      prefs.edit().putBoolean(BootStartup.ENABLED, previousStartup).commit();
       return false;
     }
     if (original.equals(resolvedHome()) && startHome(context, original)) return true;
     restoreHomeEntry(pm, entry, previous);
+    prefs.edit().putBoolean(BootStartup.ENABLED, previousStartup).commit();
     return false;
   }
 
