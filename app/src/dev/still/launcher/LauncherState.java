@@ -9,10 +9,10 @@ public final class LauncherState {
   private LauncherState() {}
 
   public enum Theme {
-    DARK("Dark", "#19191C", "#FAFAFC", "#B9B9C0", "#29292E", "#FFFFFF", "#73F5C5"),
-    SUPER_DARK("Super Dark", "#060606", "#FAFAFC", "#B5B5BC", "#19191B", "#FFFFFF", "#73F5C5"),
-    LIGHT("Light", "#F3F3F5", "#161619", "#595960", "#E3E3E8", "#161619", "#007253");
-    public final String label, background, foreground, muted, panel, focus, brand;
+    DARK("Dark", "#19191C", "#FAFAFC", "#B9B9C0", "#29292E", "#FFFFFF"),
+    SUPER_DARK("Super Dark", "#060606", "#FAFAFC", "#B5B5BC", "#19191B", "#FFFFFF"),
+    LIGHT("Light", "#F3F3F5", "#161619", "#595960", "#E3E3E8", "#161619");
+    public final String label, background, foreground, muted, panel, focus;
 
     Theme(
         String label,
@@ -20,15 +20,13 @@ public final class LauncherState {
         String foreground,
         String muted,
         String panel,
-        String focus,
-        String brand) {
+        String focus) {
       this.label = label;
       this.background = background;
       this.foreground = foreground;
       this.muted = muted;
       this.panel = panel;
       this.focus = focus;
-      this.brand = brand;
     }
 
     public static Theme parse(String name) {
@@ -36,6 +34,33 @@ public final class LauncherState {
         return valueOf(name);
       } catch (IllegalArgumentException | NullPointerException e) {
         return SUPER_DARK;
+      }
+    }
+  }
+
+  public enum Accent {
+    VIOLET("Electric violet", "#B994FF", "#7136C8"),
+    CYAN("Electric cyan", "#60DEFF", "#006782"),
+    AMBER("Neon amber", "#FFD166", "#8B5200");
+
+    public final String label;
+    private final String dark, light;
+
+    Accent(String label, String dark, String light) {
+      this.label = label;
+      this.dark = dark;
+      this.light = light;
+    }
+
+    public String color(Theme theme) {
+      return theme == Theme.LIGHT ? light : dark;
+    }
+
+    public static Accent parse(String name) {
+      try {
+        return valueOf(name);
+      } catch (IllegalArgumentException | NullPointerException ignored) {
+        return VIOLET;
       }
     }
   }

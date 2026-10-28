@@ -13,11 +13,11 @@ Still TV and its tooling must never disable, uninstall, clear data from, or repl
 
 ## Normal exit
 
-**Settings → Open original Home** launches the saved original component. This does not silently change Android's default Home assignment. With the original still default, pressing the remote's Home button also returns to it.
+**Settings → Restore original launcher** disables only Still TV’s own Home alias and opens the saved original Home. The app verifies that the saved original now resolves Home before reporting success. If verification or launch fails, it restores Still TV’s previous Home-entry state. Still TV stays installed and can be opened from Apps. **Use Still TV as Home** enables its Home entry again and opens Android’s Home selection where the firmware supports it.
 
 ## Crash recovery
 
-For an uncaught Java exception, a process-level handler saves a recovery flag and tries to open original Home before handing the exception to Android. On a later Home launch while this flag is set, Still TV forwards to original Home. Opening Still TV explicitly instead offers a recovery dialog with **Open original Home**, **Try Still TV again**, and **System settings**.
+For an uncaught Java exception, a process-level handler saves a recovery flag, disables only Still TV’s own Home alias, and tries to open original Home before handing the exception to Android. On a later Home launch while this flag is set, Still TV forwards to original Home. Opening Still TV explicitly instead offers a recovery dialog with **Open original Home**, **Try Still TV again**, and **System settings**.
 
 This is best effort. A frozen main thread, native crash, low-memory kill, power loss, or Android restrictions may prevent in-process recovery. There is no claim that an app can always repair its own failure or silently reassign the Home role. A computer with working ADB supplies the independent recovery route below. Without ADB, use the TV's Home-app selection/settings where supported.
 

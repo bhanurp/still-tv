@@ -13,14 +13,14 @@ final class UiStyle {
   final Context context;
   final int background, foreground, muted, panel, focus, brand;
 
-  UiStyle(Context context, LauncherState.Theme theme) {
+  UiStyle(Context context, LauncherState.Theme theme, LauncherState.Accent accent) {
     this.context = context;
     background = Color.parseColor(theme.background);
     foreground = Color.parseColor(theme.foreground);
     muted = Color.parseColor(theme.muted);
     panel = Color.parseColor(theme.panel);
     focus = Color.parseColor(theme.focus);
-    brand = Color.parseColor(theme.brand);
+    brand = Color.parseColor(accent.color(theme));
     if (regular == null) {
       Typeface base = Typeface.createFromAsset(context.getAssets(), "fonts/DMSans.ttf");
       regular = weight(base, 400);
@@ -58,9 +58,9 @@ final class UiStyle {
   }
 
   void applyBrand(TextView view) {
-    view.setTextSize(18);
-    view.setTypeface(font(600));
-    view.setLetterSpacing(-.025f);
+    view.setTextSize(36);
+    view.setTypeface(font(500));
+    view.setLetterSpacing(-.035f);
     view.setTextColor(brand);
     view.setIncludeFontPadding(false);
   }

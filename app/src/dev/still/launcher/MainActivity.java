@@ -19,6 +19,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -37,6 +38,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   private Recovery recovery;
   private AppCatalog catalog;
   private LauncherState.Theme theme;
+  private LauncherState.Accent accent;
   private UiStyle ui;
   private final List<AppCatalog.App> apps = new ArrayList<>();
   private final Map<String, List<AppTile>> tiles = new HashMap<>();
@@ -62,7 +64,8 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     prefs = getSharedPreferences("still", MODE_PRIVATE);
     recovery = new Recovery(this, prefs);
     theme = LauncherState.Theme.parse(prefs.getString("theme", null));
-    ui = new UiStyle(this, theme);
+    accent = LauncherState.Accent.parse(prefs.getString("accent", null));
+    ui = new UiStyle(this, theme, accent);
     if (recovery.isSafeMode()) {
       if (getIntent().hasCategory(Intent.CATEGORY_HOME) && recovery.openHome()) finish();
       else showRecovery();
@@ -109,7 +112,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   }
 
   private void render() {
-    ui = new UiStyle(this, theme);
+    ui = new UiStyle(this, theme, accent);
     getWindow()
         .getDecorView()
         .setSystemUiVisibility(
@@ -341,31 +344,87 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
             new String[] {
               "Appearance · " + theme.label,
               "System settings",
-              "Open original Home",
+              "Use Still TV as Home",
+              "Restore original launcher",
               "Recovery information"
             },
             (d, which) -> {
-              if (which == 0) showThemes();
+              if (which == 0) showAppearance();
               else if (which == 1) openSystem(new Intent(Settings.ACTION_SETTINGS));
               else if (which == 2) {
-                if (!recovery.openHome())
+                if (!recovery.requestStillHome(this))
                   Toast.makeText(
                           this,
-                          "Original Home unavailable. Use System settings or ADB recovery.",
+                          "This firmware did not switch Home to Still TV. Your original launcher is"
+                              + " preserved.",
+                          Toast.LENGTH_LONG)
+                      .show();
+              } else if (which == 3) {
+                if (recovery.revertHome()) finish();
+                else
+                  Toast.makeText(
+                          this,
+                          "Original Home could not be restored. Still TV is preserved; use ADB"
+                              + " recovery.",
                           Toast.LENGTH_LONG)
                       .show();
               } else
                 dialog()
                     .setTitle("Original launcher preserved")
                     .setMessage(
-                        "Still TV never disables or removes your original launcher. Opening"
-                            + " original Home does not change the default. Use the documented ADB"
-                            + " recovery tool to restore the default or recover a freeze. Java"
-                            + " crash recovery is best effort.")
+                        "Still TV never disables or removes your original launcher. Restore"
+                            + " original launcher switches back while keeping Still TV available in"
+                            + " Apps. ADB recovery is available if the screen freezes. Java crash"
+                            + " recovery is best effort.")
                     .setPositiveButton("OK", null)
                     .show();
             })
         .show();
+  }
+
+  private void showAppearance() {
+    dialog()
+        .setTitle("Appearance")
+        .setItems(
+            new String[] {"Theme · " + theme.label, "Accent · " + accent.label},
+            (d, which) -> {
+              if (which == 0) showThemes();
+              else showAccents();
+            })
+        .show();
+  }
+
+  private void showAccents() {
+    LauncherState.Accent saved = accent;
+    LauncherState.Accent[] values = LauncherState.Accent.values();
+    String[] labels = new String[values.length];
+    for (int i = 0; i < values.length; i++) labels[i] = values[i].label;
+    Runnable cancel =
+        () -> {
+          accent = saved;
+          render();
+        };
+    AlertDialog preview =
+        dialog()
+            .setTitle("Preview accent")
+            .setSingleChoiceItems(
+                labels,
+                accent.ordinal(),
+                (d, which) -> {
+                  accent = values[which];
+                  render();
+                })
+            .setPositiveButton(
+                "Keep color", (d, w) -> prefs.edit().putString("accent", accent.name()).apply())
+            .setNegativeButton("Cancel", (d, w) -> cancel.run())
+            .setOnCancelListener(d -> cancel.run())
+            .create();
+    preview.show();
+    if (preview.getWindow() != null) {
+      preview.getWindow().setDimAmount(0f);
+      preview.getWindow().setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+      preview.getWindow().setLayout(ui.dp(330), WindowManager.LayoutParams.WRAP_CONTENT);
+    }
   }
 
   private void showThemes() {

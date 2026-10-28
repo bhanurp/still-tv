@@ -3,13 +3,13 @@
 A small native Android TV launcher with a spacious, Apple TV–inspired app grid. The top-left wordmark is **bhanureddy.dev**.
 
 - Large app tiles and D-pad focus transitions.
-- **Dark**, **Super Dark** (default), and **Light** themes under **Settings → Appearance**. Theme choice persists locally.
+- **Dark**, **Super Dark** (default), and **Light** themes under **Settings → Appearance → Theme**. Theme choice persists locally.
 - Favorites: hold OK or press Menu on an app to pin/unpin it or open Android app information.
 - Discovers installed TV apps and loads their existing banners. No recommendation feeds, video previews, ads, analytics, network permission, or account service.
-- **Settings → System settings** opens Android settings. **Open original Home** opens the preserved original launcher.
+- **Settings → System settings** opens Android settings. **Restore original launcher** switches the default Home back to the preserved original launcher.
 - Native Java/Android Views, Android 8.0/API 26 or later. Tested initially on one Android 11 television; behavior can differ by firmware.
 - Bundled DM Sans typography, a fixed navigation bar, single-view app tiles, progressive background artwork loading, and bounded artwork caches.
-- Matching wordmark/clock typography with mint accents in dark themes and a contrast-safe teal accent in Light.
+- Matching 36sp wordmark/clock typography. Preview Electric violet, Electric cyan, or Neon amber under **Settings → Appearance → Accent**; **Keep color** saves the choice and **Cancel** restores it. Accents adapt for contrast in Light.
 
 This changes the home screen. It does not repair freezes inside streaming apps, improve internet service, or guarantee a particular frame rate.
 
@@ -41,7 +41,15 @@ adb -s TV_SERIAL shell am start -W -n dev.still.launcher/.MainActivity
 
 The snapshot saves your original launcher and device locally in `installation-state.json`, excluded from Git. Preserve that file. The preview does not change the default launcher; pressing Home still opens your existing Home.
 
-When you deliberately choose to make Still TV the default, first verify recovery on your own TV. Some firmware restricts launcher selection. Never disable or uninstall the original launcher to force a switch.
+To make Still TV the default, use **Settings → Use Still TV as Home** and accept the Android Home selection where available. On firmware that requires authorized ADB, enable its Home entry and assign it:
+
+```sh
+adb -s TV_SERIAL shell cmd package set-home-activity --user 0 dev.still.launcher
+```
+
+If the Home entry was previously disabled by restoration, first select **Use Still TV as Home** in the app. Some TVs give their system launcher higher intent priority: even a successful ADB Home-role assignment may leave the original handling Home. Verify the actual Home button; this project does not disable the original launcher to bypass that restriction.
+
+**Settings → Restore original launcher** removes only Still TV’s Home entry from selection and opens the saved original launcher. Still TV remains available in Apps. Verify recovery on your own firmware before switching; never disable or uninstall the original launcher to force a switch.
 
 ## Recovery
 

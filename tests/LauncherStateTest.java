@@ -28,9 +28,16 @@ public final class LauncherStateTest {
     for (LauncherState.Theme theme : LauncherState.Theme.values()) {
       check(contrast(theme.background, theme.foreground) > 7.0, "text contrast " + theme);
       check(contrast(theme.background, theme.focus) > 3.0, "focus contrast " + theme);
-      check(contrast(theme.background, theme.brand) > 4.5, "brand contrast " + theme);
+      for (LauncherState.Accent accent : LauncherState.Accent.values()) {
+        check(
+            contrast(theme.background, accent.color(theme)) > 4.5,
+            "accent contrast " + theme + accent);
+      }
     }
-    System.out.println("Launcher state: 17 checks passed");
+    check(LauncherState.Accent.parse(null) == LauncherState.Accent.VIOLET, "missing accent");
+    check(LauncherState.Accent.parse("broken") == LauncherState.Accent.VIOLET, "invalid accent");
+    check(LauncherState.Accent.parse("CYAN") == LauncherState.Accent.CYAN, "saved accent");
+    System.out.println("Launcher state: 26 checks passed");
   }
 
   private static double contrast(String a, String b) {
