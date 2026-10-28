@@ -16,13 +16,16 @@
 
 ## Demo
 
-<div align="center">
+https://github.com/user-attachments/assets/307e6c93-1d30-4624-87e2-7080323909da
 
-[![Still TV running on Sony BRAVIA with Neon amber and six favorites](docs/media/still-tv-home.png)](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+[Download the original 1080p MP4](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
 
-[**Play the real-TV walkthrough →**](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+<details>
+<summary>View the home-screen screenshot</summary>
 
-</div>
+![Still TV running on Sony BRAVIA with Neon amber and six favorites](docs/media/still-tv-home.png)
+
+</details>
 
 <sub>Actual 1080p TV recording, at normal playback speed, with ADB-injected D-pad input. Video frames and timing are preserved; container metadata is removed. This is a navigation demonstration, not a measurement of physical-remote latency. [Recording details](docs/evidence/navigation.json) · [Rendering measurements and limits](PERFORMANCE.md).</sub>
 

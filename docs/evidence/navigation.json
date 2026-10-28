@@ -11,5 +11,6 @@
   "input_spacing_ms": 350,
   "processing": "Video packets copied without re-encoding or changing playback speed; container metadata/data track removed, faststart enabled",
   "limitation": "Interface demonstration, not measured physical-remote input latency. Recording can add load.",
-  "evidence_id": "ev_2c6f119fd264cf861ec1e0db419250ddc7cef2fc5b5167dc70ab9132e99ae96c"
+  "evidence_id": "ev_2c6f119fd264cf861ec1e0db419250ddc7cef2fc5b5167dc70ab9132e99ae96c",
+  "inline_video_url": "https://github.com/user-attachments/assets/307e6c93-1d30-4624-87e2-7080323909da"
 }
