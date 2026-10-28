@@ -1,8 +1,8 @@
 # Installation and recovery plan
 
-## Always preserve the original launcher
+## Always preserve the original launcher package
 
-Still TV and its tooling must never disable, uninstall, clear data from, or replace the original launcher package. The original remains installed and enabled during previews and any later default switch. A default Home assignment is separate from removing an app.
+Still TV and its recovery tooling never uninstall, clear data from, or replace the original launcher package. Normal Home selection keeps it enabled. On firmware that forces its higher priority, an owner may explicitly authorize disabling the original for the current user after recovery is verified. The original must remain installed; the recovery tool can re-enable it.
 
 ## Before installation
 
@@ -13,11 +13,15 @@ Still TV and its tooling must never disable, uninstall, clear data from, or repl
 
 ## Normal exit
 
-**Settings → Restore original launcher** disables only Still TV’s own Home alias and opens the saved original Home. The app verifies that the saved original now resolves Home before reporting success. If verification or launch fails, it restores Still TV’s previous Home-entry state. Still TV stays installed and can be opened from Apps. **Use Still TV as Home** enables its Home entry again and opens Android’s Home selection where the firmware supports it.
+If the original is disabled, **Settings → Restore original launcher** first opens its Android App Info. Select **Enable**, confirm **OK**, then press Back; Still TV checks the enabled state and completes restoration. If Enable is absent or declined, keep Still TV available and use independent ADB recovery.
+
+With original enabled, **Settings → Restore original launcher** disables only Still TV’s own Home alias and opens the saved original Home. The app verifies that the saved original now resolves Home before reporting success. If verification or launch fails, it restores Still TV’s previous Home-entry state. Still TV stays installed and can be opened from Apps. **Use Still TV as Home** enables its Home entry again and opens Android’s Home selection where the firmware supports it.
 
 ## Crash recovery
 
-For an uncaught Java exception, a process-level handler saves a recovery flag, disables only Still TV’s own Home alias, and tries to open original Home before handing the exception to Android. On a later Home launch while this flag is set, Still TV forwards to original Home. Opening Still TV explicitly instead offers a recovery dialog with **Open original Home**, **Try Still TV again**, and **System settings**.
+For an uncaught Java exception, a process-level handler saves a recovery flag. If the original is enabled and accepts a launch, the handler opens it and disables only Still TV's Home entry. If original is disabled or unavailable, the handler keeps Still TV's Home entry active so Home remains reachable after the process exits.
+
+On a later Home launch with the recovery flag set, Still TV restores original Home when usable, or shows the recovery dialog otherwise. **Open original Home** offers the system Enable flow when needed. **Try Still TV again** clears the flag; **System settings** keeps access to the TV's settings. Back preserves the recovery dialog.
 
 This is best effort. A frozen main thread, native crash, low-memory kill, power loss, or Android restrictions may prevent in-process recovery. There is no claim that an app can always repair its own failure or silently reassign the Home role. A computer with working ADB supplies the independent recovery route below. Without ADB, use the TV's Home-app selection/settings where supported.
 
@@ -31,7 +35,7 @@ python3 tools/recover.py restore
 
 The tool performs these steps in order:
 
-1. Check that the saved original package is installed and enabled for the saved Android user.
+1. Check the saved original package is installed for the saved user; if disabled, re-enable that package and verify enabled state.
 2. Assign the original Home using Android's `cmd package set-home-activity` command.
 3. Resolve Home again and verify the original component.
 4. Launch original Home with `am start -W`; reject errors and launch timeouts.

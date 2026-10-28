@@ -37,10 +37,31 @@ class RecoveryTest(unittest.TestCase):
         with self.assertRaises(RuntimeError): restore('adb','test-device',ORIGINAL,0,True,run)
         self.assertEqual(len(self.commands),3)
 
-    def test_disabled_original_stops_recovery(self):
-        run=self.runner([''])
+    def test_disabled_original_is_enabled_before_restoration(self):
+        run=self.runner(['','package:com.vendor.home\n','Package new state: enabled\n',
+            'package:com.vendor.home\n','Success\n',ORIGINAL+'\n','Status: ok\n',
+            'mResumedActivity: ActivityRecord{123 u0 '+ORIGINAL+' t1}\n',''])
+        restore('adb','test-device',ORIGINAL,0,False,run)
+        commands=[' '.join(c) for c in self.commands]
+        self.assertIn('pm enable --user 0 com.vendor.home', commands[2])
+        self.assertIn('set-home-activity',commands[4])
+        self.assertIn('force-stop',commands[-1])
+        self.assertFalse(any('disable' in c or 'uninstall' in c for c in commands))
+
+    def test_missing_original_stops_without_changes(self):
+        run=self.runner(['',''])
         with self.assertRaises(RuntimeError): restore('adb','test-device',ORIGINAL,0,True,run)
-        self.assertEqual(len(self.commands),1)
+        self.assertEqual(len(self.commands),2)
+
+    def test_original_enable_failure_never_stops_or_uninstalls(self):
+        run=self.runner(['','package:com.vendor.home\n',subprocess.CalledProcessError(1,'adb')])
+        with self.assertRaises(subprocess.CalledProcessError): restore('adb','test-device',ORIGINAL,0,True,run)
+        self.assertEqual(len(self.commands),3)
+
+    def test_original_enable_readback_failure_stops(self):
+        run=self.runner(['','package:com.vendor.home\n','Package new state: enabled\n',''])
+        with self.assertRaises(RuntimeError): restore('adb','test-device',ORIGINAL,0,True,run)
+        self.assertEqual(len(self.commands),4)
 
     def test_custom_launcher_cannot_be_original(self):
         run=self.runner([])

@@ -36,6 +36,7 @@ import java.util.Map;
 public final class MainActivity extends Activity implements AppCatalog.Listener {
   private SharedPreferences prefs;
   private Recovery recovery;
+  private AlertDialog recoveryDialog;
   private AppCatalog catalog;
   private LauncherState.Theme theme;
   private LauncherState.Accent accent;
@@ -67,7 +68,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     accent = LauncherState.Accent.parse(prefs.getString("accent", null));
     ui = new UiStyle(this, theme, accent);
     if (recovery.isSafeMode()) {
-      if (getIntent().hasCategory(Intent.CATEGORY_HOME) && recovery.openHome()) finish();
+      if (getIntent().hasCategory(Intent.CATEGORY_HOME) && recovery.revertHome()) finish();
       else showRecovery();
       return;
     }
@@ -360,22 +361,15 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
                           Toast.LENGTH_LONG)
                       .show();
               } else if (which == 3) {
-                if (recovery.revertHome()) finish();
-                else
-                  Toast.makeText(
-                          this,
-                          "Original Home could not be restored. Still TV is preserved; use ADB"
-                              + " recovery.",
-                          Toast.LENGTH_LONG)
-                      .show();
+                restoreOriginalHome();
               } else
                 dialog()
                     .setTitle("Original launcher preserved")
                     .setMessage(
-                        "Still TV never disables or removes your original launcher. Restore"
-                            + " original launcher switches back while keeping Still TV available in"
-                            + " Apps. ADB recovery is available if the screen freezes. Java crash"
-                            + " recovery is best effort.")
+                        "Your original launcher stays installed. If it is disabled, Restore"
+                            + " original launcher opens App information so you can select Enable."
+                            + " Still TV stays available in Apps. ADB recovery is available if the"
+                            + " screen freezes. Java crash recovery is best effort.")
                     .setPositiveButton("OK", null)
                     .show();
             })
@@ -446,30 +440,68 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
         .show();
   }
 
-  private void showRecovery() {
+  private void restoreOriginalHome() {
+    if (recovery.originalNeedsEnable()) {
+      dialog()
+          .setTitle("Enable original launcher")
+          .setMessage(
+              "In App information, select Enable, then press Back to return to Still TV. Still TV"
+                  + " will then finish restoring your original Home.")
+          .setPositiveButton(
+              "Open App information",
+              (d, w) -> {
+                if (!recovery.requestEnableOriginal(this)) showRestoreUnavailable();
+              })
+          .setNegativeButton("Cancel", null)
+          .show();
+    } else if (recovery.revertHome()) finish();
+    else showRestoreUnavailable();
+  }
+
+  private void showRestoreUnavailable() {
     dialog()
-        .setTitle("Still TV recovery")
-        .setMessage("Still TV stopped unexpectedly. Your original launcher is preserved.")
+        .setTitle("Original launcher could not be restored")
+        .setMessage(
+            "Still TV remains available. Open System settings → Apps, find your original launcher"
+                + " and select Enable if it is disabled. Then return to Still TV and choose Restore"
+                + " original launcher again. ADB recovery is available if this TV does not offer"
+                + " Enable.")
         .setPositiveButton(
-            "Open original Home",
-            (d, w) -> {
-              recovery.openHome();
-              finish();
-            })
-        .setNeutralButton(
-            "Try Still TV again",
-            (d, w) -> {
-              recovery.retry();
-              recreate();
-            })
-        .setNegativeButton(
-            "System settings",
-            (d, w) -> {
-              openSystem(new Intent(Settings.ACTION_SETTINGS));
-              finish();
-            })
-        .setCancelable(false)
+            "System settings", (d, w) -> openSystem(new Intent(Settings.ACTION_SETTINGS)))
+        .setNegativeButton("Close", null)
         .show();
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == Recovery.REQUEST_ENABLE_ORIGINAL) restoreOriginalHome();
+  }
+
+  private void showRecovery() {
+    if (recoveryDialog != null && recoveryDialog.isShowing()) return;
+    recoveryDialog =
+        dialog()
+            .setTitle("Still TV recovery")
+            .setMessage(
+                "Still TV stopped unexpectedly. Your original launcher is still installed. If it"
+                    + " is disabled, Open original Home will help you enable it.")
+            .setPositiveButton("Open original Home", null)
+            .setNeutralButton(
+                "Try Still TV again",
+                (d, w) -> {
+                  recovery.retry();
+                  recreate();
+                })
+            .setNegativeButton("System settings", null)
+            .setCancelable(false)
+            .show();
+    recoveryDialog
+        .getButton(AlertDialog.BUTTON_POSITIVE)
+        .setOnClickListener(v -> restoreOriginalHome());
+    recoveryDialog
+        .getButton(AlertDialog.BUTTON_NEGATIVE)
+        .setOnClickListener(v -> openSystem(new Intent(Settings.ACTION_SETTINGS)));
   }
 
   private void openSystem(Intent intent) {
@@ -490,8 +522,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   @Override
   public void onBackPressed() {
     if (scroll == null) {
-      recovery.openHome();
-      finish();
+      showRecovery();
     } else {
       scroll.smoothScrollTo(0, 0);
       focus(firstFavorite != null ? firstFavorite : firstApp);

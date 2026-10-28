@@ -9,11 +9,13 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
 /** Preserves the original Home and contains all best-effort crash forwarding. */
 final class Recovery {
+  static final int REQUEST_ENABLE_ORIGINAL = 1002;
   private static final int REQUEST_HOME_ROLE = 1001;
   private static boolean installed;
   private final Context context;
@@ -36,6 +38,37 @@ final class Recovery {
 
   boolean openHome() {
     return openHome(context, prefs);
+  }
+
+  boolean originalNeedsEnable() {
+    ComponentName saved = savedOriginalHome(context, prefs);
+    if (saved == null) return false;
+    try {
+      PackageManager pm = context.getPackageManager();
+      ActivityInfo info = pm.getActivityInfo(saved, PackageManager.MATCH_DISABLED_COMPONENTS);
+      return !enabled(pm.getComponentEnabledSetting(saved), info.enabled)
+          || !enabled(
+              pm.getApplicationEnabledSetting(saved.getPackageName()),
+              info.applicationInfo.enabled);
+    } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
+      return false;
+    }
+  }
+
+  /** The owner must select Enable in App information; this app cannot enable another package. */
+  boolean requestEnableOriginal(Activity activity) {
+    ComponentName saved = savedOriginalHome(context, prefs);
+    if (saved == null || !originalNeedsEnable()) return false;
+    try {
+      activity.startActivityForResult(
+          new Intent(
+              Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+              Uri.fromParts("package", saved.getPackageName(), null)),
+          REQUEST_ENABLE_ORIGINAL);
+      return true;
+    } catch (RuntimeException ignored) {
+      return false;
+    }
   }
 
   /** Removes Still TV from Home resolution, then opens the saved original Home. */
@@ -167,16 +200,14 @@ final class Recovery {
           } catch (Throwable ignored) {
           }
           try {
-            context
-                .getPackageManager()
-                .setComponentEnabledSetting(
-                    homeEntry(context),
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP);
-          } catch (Throwable ignored) {
-          }
-          try {
-            openHome(context, prefs);
+            ComponentName original = originalHome(context, prefs);
+            if (original != null && startHome(context, original))
+              context
+                  .getPackageManager()
+                  .setComponentEnabledSetting(
+                      homeEntry(context),
+                      PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                      PackageManager.DONT_KILL_APP);
           } catch (Throwable ignored) {
           }
           if (previous != null) previous.uncaughtException(thread, error);
@@ -191,9 +222,8 @@ final class Recovery {
 
   private static ComponentName originalHome(Context context, SharedPreferences prefs) {
     try {
-      String saved = prefs.getString("original_home", null);
-      ComponentName home = saved == null ? null : ComponentName.unflattenFromString(saved);
-      if (home == null || home.getPackageName().equals(context.getPackageName())) return null;
+      ComponentName home = savedOriginalHome(context, prefs);
+      if (home == null) return null;
       PackageManager pm = context.getPackageManager();
       ActivityInfo info = pm.getActivityInfo(home, 0);
       if (!info.exported
@@ -202,6 +232,21 @@ final class Recovery {
               pm.getApplicationEnabledSetting(home.getPackageName()), info.applicationInfo.enabled))
         return null;
       return home;
+    } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
+      return null;
+    }
+  }
+
+  private static ComponentName savedOriginalHome(Context context, SharedPreferences prefs) {
+    try {
+      String saved = prefs.getString("original_home", null);
+      ComponentName home = saved == null ? null : ComponentName.unflattenFromString(saved);
+      if (home == null || home.getPackageName().equals(context.getPackageName())) return null;
+      ActivityInfo info =
+          context
+              .getPackageManager()
+              .getActivityInfo(home, PackageManager.MATCH_DISABLED_COMPONENTS);
+      return info.exported && info.applicationInfo != null ? home : null;
     } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
       return null;
     }

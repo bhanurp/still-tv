@@ -37,7 +37,13 @@ def enabled(adb,device,component,user,runner=subprocess.run):
 def restore(adb,device,original,user=0,uninstall=False,runner=subprocess.run):
     original_component(original)
     if not enabled(adb,device,original,user,runner):
-        raise RuntimeError('Original launcher is missing or disabled; no changes made')
+        pkg=original.split('/')[0]
+        installed=invoke(adb,device,['pm','list','packages','--user',str(user),pkg],runner)
+        if 'package:'+pkg not in installed.splitlines():
+            raise RuntimeError('Original launcher is missing; no changes made')
+        invoke(adb,device,['pm','enable','--user',str(user),pkg],runner)
+        if not enabled(adb,device,original,user,runner):
+            raise RuntimeError('Original launcher could not be enabled; Still TV was not stopped or removed')
     invoke(adb,device,['cmd','package','set-home-activity','--user',str(user),original],runner)
     resolved=home(adb,device,user,runner)
     if not resolved or normalized(resolved)!=normalized(original):
@@ -80,7 +86,7 @@ def main():
         state=json.loads(args.state.read_text())
         original_component(state['original'])
         if args.dry_run:
-            print('Check original launcher enabled → restore default → verify default → open original Home → stop Still TV'+(' → uninstall only Still TV' if args.uninstall else ''))
+            print('Check original installed → enable original if needed → verify enabled → restore default → verify default → open original Home → stop Still TV'+(' → uninstall only Still TV' if args.uninstall else ''))
             return
         restore(args.adb,args.device or state['device'],state['original'],state['user'],args.uninstall)
         print('Original Home restored and opened. Still TV '+('removed.' if args.uninstall else 'stopped; its preferences are preserved.'))
