@@ -1,98 +1,81 @@
-# Still TV
+<div align="center">
 
-A small native Android TV launcher with a spacious, Apple TV–inspired app grid. The top-left wordmark is **bhanureddy.dev**.
+<img src="docs/media/still-tv-banner.svg" width="100%" alt="Still TV — a calmer home for Android TV, with the amber S icon and a remote-ready app grid">
 
-[Download stable v0.1.0](https://github.com/bhanurp/still-tv/releases/tag/v0.1.0) · [Watch real-TV D-pad navigation (1080p MP4)](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+**A lightweight, native home screen built around your apps.**
 
-[![Still TV running on Sony BRAVIA](docs/media/still-tv-home.png)](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+[![Stable release](https://img.shields.io/github/v/release/bhanurp/still-tv?style=flat-square&labelColor=18181B&color=FFD166)](https://github.com/bhanurp/still-tv/releases/latest)
+[![Build and test](https://github.com/bhanurp/still-tv/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/bhanurp/still-tv/actions/workflows/build.yml)
+[![Release workflow](https://github.com/bhanurp/still-tv/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/bhanurp/still-tv/actions/workflows/release.yml)
+[![Android TV 8.0+](https://img.shields.io/badge/Android_TV-8.0%2B-FFD166?style=flat-square&logo=android&logoColor=FFD166&labelColor=18181B)](#get-started)
+[![MIT license](https://img.shields.io/github/license/bhanurp/still-tv?style=flat-square&labelColor=18181B&color=FFD166)](LICENSE)
 
-- Large app tiles and D-pad focus transitions.
-- **Dark**, **Super Dark** (default), and **Light** themes under **Settings → Appearance → Theme**. Theme choice persists locally.
-- Favorites: hold OK or press Menu on an app to pin/unpin it or open Android app information.
-- Discovers installed TV apps and loads their existing banners. No recommendation feeds, video previews, ads, analytics, network permission, or account service.
-- **Settings → System settings** opens Android settings. **Restore original launcher** switches back to the preserved original launcher; if it is disabled, the setting first opens Android App Info so you can select **Enable**, then return.
-- Native Java/Android Views, Android 8.0/API 26 or later. Tested initially on one Android 11 television; behavior can differ by firmware.
-- Bundled DM Sans typography, a fixed navigation bar, single-view app tiles, progressive background artwork loading, and bounded artwork caches.
-- Matching 36sp wordmark/clock typography. Neon amber is the default accent. Preview Electric violet, Electric cyan, or Neon amber under **Settings → Appearance → Accent**; **Keep color** saves the choice and **Cancel** restores it. Accents adapt for contrast in Light.
+[**Download APK**](https://github.com/bhanurp/still-tv/releases/latest/download/still-tv.apk) · [**Watch the demo**](#demo) · [**Sony BRAVIA setup**](#sony-bravia-making-still-tv-the-actual-home) · [**Recovery**](#recovery) · [**Build**](#build-from-source)
 
-This changes the home screen. It does not repair freezes inside streaming apps, improve internet service, or guarantee a particular frame rate.
+</div>
 
-## Build
+## Demo
 
-Requires a JDK 17 and Android SDK 35 platform/build-tools. A local helper downloads official tools with checksum verification on macOS (Apple Silicon or Intel) and x86_64 Linux:
+<div align="center">
+
+[![Still TV running on Sony BRAVIA with Neon amber and six favorites](docs/media/still-tv-home.png)](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+
+[**Play the real-TV walkthrough →**](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+
+</div>
+
+<sub>Actual 1080p TV recording, at normal playback speed, with ADB-injected D-pad input. Video frames and timing are preserved; container metadata is removed. This is a navigation demonstration, not a measurement of physical-remote latency. [Recording details](docs/evidence/navigation.json) · [Rendering measurements and limits](PERFORMANCE.md).</sub>
+
+## Make room for your apps
+
+Still TV brings a spacious app grid, clear D-pad focus and DM Sans typography to Android TV. No recommendation feeds, autoplay previews, ads, analytics or account service. The launcher requests no network permission.
+
+<table>
+<tr>
+<td width="50%" valign="top"><strong>Built for the remote</strong><br>Large targets, immediate focus feedback and a short, interruptible focus animation. Native Android Views throughout.</td>
+<td width="50%" valign="top"><strong>Your favorites, up front</strong><br>Hold OK or press Menu to pin and unpin apps. Favorites and their order stay saved across updates.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><strong>Choose the mood</strong><br>Dark, Super Dark and Light. Preview Neon amber, Electric violet or Electric cyan before keeping a color.</td>
+<td width="50%" valign="top"><strong>Quiet and local</strong><br>Installed apps supply their own artwork. Background loading and bounded caches keep discovery off the UI thread.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><strong>Small by design</strong><br>A native Java launcher with no AndroidX or web runtime dependency. The v0.1.0 APK is about 145 KiB.</td>
+<td width="50%" valign="top"><strong>A way back home</strong><br>The original launcher stays installed. A tested TV setting and independent ADB tool restore it when needed.</td>
+</tr>
+</table>
+
+The wordmark is **bhanureddy.dev**, matched to the clock in font, size and accent. **Super Dark + Neon amber** is the default appearance. Accents adapt for contrast in Light.
+
+## Get started
+
+**Requires Android TV 8.0 / API 26 or later and authorized ADB for sideloading.** Behavior varies by firmware; the default-Home setup below was verified on one Sony Android 11 TV.
+
+1. Download **[still-tv.apk](https://github.com/bhanurp/still-tv/releases/latest/download/still-tv.apk)** and its **[SHA-256 checksum](https://github.com/bhanurp/still-tv/releases/latest/download/still-tv.apk.sha256)** from the latest stable release.
+2. Replace `TV_SERIAL` with your connected TV's ADB serial/address, then install and open it:
 
 ```sh
-python3 tools/bootstrap.py
-sh test.sh
-sh build.sh
-```
-
-Output: `build/still-tv.apk`. No Gradle or AndroidX dependencies are required. `curl`, Python 3 and `zip` must be available. SDK/JDK usage is subject to their respective licenses.
-
-With an existing compatible toolchain, set `STILL_JAVA_HOME`, `STILL_BUILD_TOOLS`, and `STILL_ANDROID_JAR` to your JDK directory, build-tools directory, and `android.jar` file.
-
-Local builds generate an ignored signing key in `build/`. Keep that key and its password file to sign compatible updates. CI artifacts use temporary build keys and are development builds, not a stable update channel. Do not publish your private signing key.
-
-## Releases
-
-[release.yml](.github/workflows/release.yml) builds and publishes a signed `still-tv.apk` and `still-tv.apk.sha256` when a version tag is pushed. It also supports **Actions → Release Android APK → Run workflow** with an existing tag. The tag must match the manifest's `versionName`, prefixed with `v`.
-
-The workflow requires Actions secrets **STILL_SIGNING_KEYSTORE_BASE64** and **STILL_SIGNING_PASSWORD** for the existing `still-tv` signing alias. It fails if signing material is absent or invalid, cleans it up after the job, and preserves published APKs/checksums on reruns. Keep using the same key for compatible updates; never commit signing material or attach it to releases.
-
-The first stable release is **v0.1.0**, using the current launcher. Its Android **versionCode is 4**, higher than the earlier preview builds, so it can update those installations. The existing v0.2.0/v0.2.1 preview tags remain historical releases. Future Android version codes must continue increasing independently of the public version name.
-
-The [navigation recording](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4) comes from the actual TV at normal playback speed, using ADB-injected D-pad input. It is an interface demonstration, not a remote-to-photon latency benchmark. Recording can add load. Only video-container metadata is removed; video frames and timing are preserved. See the [recording details](docs/evidence/navigation.json) and [PERFORMANCE.md](PERFORMANCE.md) for measured rendering samples and their limitations.
-
-## Preview without changing Home
-
-Connect your TV through authorized ADB. Replace `TV_SERIAL` with its connected ADB serial/address:
-
-```sh
-python3 tools/recover.py snapshot --device TV_SERIAL
-adb -s TV_SERIAL install --no-incremental -r build/still-tv.apk
+adb -s TV_SERIAL install --no-incremental -r still-tv.apk
 adb -s TV_SERIAL shell am start -W -n dev.still.launcher/.MainActivity
 ```
 
-The snapshot saves your original launcher and device locally in `installation-state.json`, excluded from Git. Preserve that file. The preview does not change the default launcher; pressing Home still opens your existing Home.
+3. Try navigation, favorites and appearance before changing Home. Use **Settings → Use Still TV as Home** where the firmware supports it. Read [Recovery](#recovery) and save an original-Home snapshot before using the Sony disable workflow.
 
-To make Still TV the default, use **Settings → Use Still TV as Home** and accept the Android Home selection where available. On firmware that requires authorized ADB, enable its Home entry and assign it:
+Installing the app alone does not replace your default Home. Streaming-app freezes and internet buffering have their own causes; this launcher changes the home screen.
 
-```sh
-adb -s TV_SERIAL shell cmd package set-home-activity --user 0 dev.still.launcher
-```
+### A few remote controls
 
-If the Home entry was previously disabled by restoration, first select **Use Still TV as Home** in the app. Some TVs give their system launcher higher intent priority: even a successful ADB Home-role assignment may leave the original handling Home. Verify the actual Home button; the default chooser cannot override that priority. An owner-authorized disable workflow is described below.
-
-**Settings → Restore original launcher** removes only Still TV’s Home entry from selection and opens the saved original launcher. Still TV remains available in Apps. Verify recovery on your own firmware before switching. Never uninstall the original launcher.
+| Control | Action |
+|---|---|
+| D-pad + OK | Move focus and open an app |
+| Hold OK / Menu | Pin or unpin an app; open Android app information |
+| Back | Return to the top and first favorite |
+| Settings → Appearance | Preview themes and accent colors |
+| Settings → Restore original launcher | Open the system Enable flow if needed, then switch Home back |
 
 ## Sony BRAVIA: making Still TV the actual Home
 
 The default-Home and recovery evidence below was captured on one **Sony BRAVIA VU1 running Android 11**, with the **0.2.1 preview**, before naming the current launcher stable **0.1.0**. The Home/recovery implementation is retained in the stable release. The original package on this TV is `com.google.android.tvlauncher`. This is a record of the tested firmware; identify your own original Home from the snapshot before using these steps.
-
-### The tricky parts
-
-| Attempt or edge case | What the TV actually did | Resulting approach |
-|---|---|---|
-| Android's default-Home picker and `set-home-activity` accepted Still TV | The Home button still opened the original, whose HOME filter had priority `2` | Verify actual Home resolution and the remote button, even when the role assignment reports success |
-| Set Still TV's manifest priority to `3` | The APK contained `3`, but Android registered it as `0`; Sony stayed at `2` | Increasing to `1`, `2`, or higher cannot avoid Android's positive-priority cap for ordinary apps; the ineffective override was removed |
-| Inspect the factory launcher instead of its installed update | The factory APK also declared HOME priority `2` | Removing launcher updates would not solve this mismatch; no updates were removed |
-| Open Still TV from a boot-completed receiver | Sony could appear first, then Still TV opened later | This did not meet the first-Home-screen requirement; the final app uses normal HOME selection, without a boot receiver or overlay permission |
-| Disable the original but preserve its installation | Still TV immediately resolved Home and handled the Home button | Disable only after explicit owner approval and verified recovery; keep the original package installed |
-| Restore a disabled original from an ordinary app | Still TV cannot silently enable another package | Open Android App Info, select **Enable**, confirm **OK**, then press **Back**; recheck before completing restoration |
-| A Java crash while original Home is disabled | Disabling Still TV's own Home entry would leave no usable primary launcher | Keep that entry active and offer recovery on the next Home launch; keep independent ADB recovery available |
-
-Android documents the [priority cap for non-privileged apps](https://developer.android.com/guide/topics/manifest/intent-filter-element#priority). The installed APK and resolver were checked separately; editing the manifest alone is not evidence of an effective priority change.
-
-Captured resolver output from the priority-`3` experiment:
-
-```text
-priority=2 ...
-com.google.android.tvlauncher/.MainActivity
-priority=0 ...
-dev.still.launcher/.HomeEntry
-```
-
-See the [sanitized command output](docs/evidence/sony-bravia-priority.txt) and [verification record](docs/evidence/sony-bravia-home.json). Device addresses, account details, boot identifiers, full system logs and pulled APKs are excluded.
 
 ### Switch while keeping the original installed
 
@@ -129,6 +112,36 @@ adb -s TV_SERIAL shell pm list packages --user 0 -d ORIGINAL_HOME_PACKAGE
 
 The native restore flow and independent ADB restoration were both tested from the disabled-original state. To switch back, use **Settings → Restore original launcher → Open App information → Enable → OK → Back**. If Enable is unavailable or Still TV is unresponsive, use the recovery tool below. **Keep the original launcher installed throughout.**
 
+<details>
+<summary><strong>What made Sony Home difficult to replace — with captured evidence</strong></summary>
+
+### The tricky parts
+
+| Attempt or edge case | What the TV actually did | Resulting approach |
+|---|---|---|
+| Android's default-Home picker and `set-home-activity` accepted Still TV | The Home button still opened the original, whose HOME filter had priority `2` | Verify actual Home resolution and the remote button, even when the role assignment reports success |
+| Set Still TV's manifest priority to `3` | The APK contained `3`, but Android registered it as `0`; Sony stayed at `2` | Increasing to `1`, `2`, or higher cannot avoid Android's positive-priority cap for ordinary apps; the ineffective override was removed |
+| Inspect the factory launcher instead of its installed update | The factory APK also declared HOME priority `2` | Removing launcher updates would not solve this mismatch; no updates were removed |
+| Open Still TV from a boot-completed receiver | Sony could appear first, then Still TV opened later | This did not meet the first-Home-screen requirement; the final app uses normal HOME selection, without a boot receiver or overlay permission |
+| Disable the original but preserve its installation | Still TV immediately resolved Home and handled the Home button | Disable only after explicit owner approval and verified recovery; keep the original package installed |
+| Restore a disabled original from an ordinary app | Still TV cannot silently enable another package | Open Android App Info, select **Enable**, confirm **OK**, then press **Back**; recheck before completing restoration |
+| A Java crash while original Home is disabled | Disabling Still TV's own Home entry would leave no usable primary launcher | Keep that entry active and offer recovery on the next Home launch; keep independent ADB recovery available |
+
+Android documents the [priority cap for non-privileged apps](https://developer.android.com/guide/topics/manifest/intent-filter-element#priority). The installed APK and resolver were checked separately; editing the manifest alone is not evidence of an effective priority change.
+
+Captured resolver output from the priority-`3` experiment:
+
+```text
+priority=2 ...
+com.google.android.tvlauncher/.MainActivity
+priority=0 ...
+dev.still.launcher/.HomeEntry
+```
+
+See the [sanitized command output](docs/evidence/sony-bravia-priority.txt) and [verification record](docs/evidence/sony-bravia-home.json). Device addresses, account details, boot identifiers, full system logs and pulled APKs are excluded.
+
+</details>
+
 ## Recovery
 
 ```sh
@@ -144,6 +157,59 @@ python3 tools/recover.py restore --uninstall
 
 Recovery verifies that original Home is installed, re-enables it if needed and verifies that state, restores and reads back its default assignment, requires a successful launch and checks the foreground Activity before stopping or removing Still TV. If verification fails, Still TV is not removed. **The tool never disables or uninstalls the original launcher.** See [RECOVERY.md](RECOVERY.md).
 
+## Build from source
+
+Requires a JDK 17 and Android SDK 35 platform/build-tools. A local helper downloads official tools with checksum verification on macOS (Apple Silicon or Intel) and x86_64 Linux:
+
+```sh
+python3 tools/bootstrap.py
+sh test.sh
+sh build.sh
+```
+
+Output: `build/still-tv.apk`. No Gradle or AndroidX dependencies are required. `curl`, Python 3 and `zip` must be available. SDK/JDK usage is subject to their respective licenses.
+
+With an existing compatible toolchain, set `STILL_JAVA_HOME`, `STILL_BUILD_TOOLS`, and `STILL_ANDROID_JAR` to your JDK directory, build-tools directory, and `android.jar` file.
+
+Local builds generate an ignored signing key in `build/`. Keep that key and its password file to sign compatible updates. CI artifacts use temporary build keys and are development builds, not a stable update channel. Do not publish your private signing key.
+
+## Releases
+
+[release.yml](.github/workflows/release.yml) builds and publishes a signed `still-tv.apk` and `still-tv.apk.sha256` when a version tag is pushed. It also supports **Actions → Release Android APK → Run workflow** with an existing tag. The tag must match the manifest's `versionName`, prefixed with `v`.
+
+The workflow requires Actions secrets **STILL_SIGNING_KEYSTORE_BASE64** and **STILL_SIGNING_PASSWORD** for the existing `still-tv` signing alias. It fails if signing material is absent or invalid, cleans it up after the job, and preserves published APKs/checksums on reruns. Keep using the same key for compatible updates; never commit signing material or attach it to releases.
+
+The first stable release is **v0.1.0**, using the current launcher. Its Android **versionCode is 4**, higher than the earlier preview builds, so it can update those installations. The existing v0.2.0/v0.2.1 preview tags remain historical releases. Future Android version codes must continue increasing independently of the public version name.
+
+The [navigation recording](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4) comes from the actual TV at normal playback speed, using ADB-injected D-pad input. It is an interface demonstration, not a remote-to-photon latency benchmark. Recording can add load. Only video-container metadata is removed; video frames and timing are preserved. See the [recording details](docs/evidence/navigation.json) and [PERFORMANCE.md](PERFORMANCE.md) for measured rendering samples and their limitations.
+
+<details>
+<summary>Build and preview while leaving your current Home unchanged</summary>
+
+### Preview without changing Home
+
+Connect your TV through authorized ADB. Replace `TV_SERIAL` with its connected ADB serial/address:
+
+```sh
+python3 tools/recover.py snapshot --device TV_SERIAL
+adb -s TV_SERIAL install --no-incremental -r build/still-tv.apk
+adb -s TV_SERIAL shell am start -W -n dev.still.launcher/.MainActivity
+```
+
+The snapshot saves your original launcher and device locally in `installation-state.json`, excluded from Git. Preserve that file. The preview does not change the default launcher; pressing Home still opens your existing Home.
+
+To make Still TV the default, use **Settings → Use Still TV as Home** and accept the Android Home selection where available. On firmware that requires authorized ADB, enable its Home entry and assign it:
+
+```sh
+adb -s TV_SERIAL shell cmd package set-home-activity --user 0 dev.still.launcher
+```
+
+If the Home entry was previously disabled by restoration, first select **Use Still TV as Home** in the app. Some TVs give their system launcher higher intent priority: even a successful ADB Home-role assignment may leave the original handling Home. Verify the actual Home button; the default chooser cannot override that priority. An owner-authorized disable workflow is described below.
+
+**Settings → Restore original launcher** removes only Still TV’s Home entry from selection and opens the saved original launcher. Still TV remains available in Apps. Verify recovery on your own firmware before switching. Never uninstall the original launcher.
+
+</details>
+
 ## License and warranty
 
 Licensed under the [MIT License](LICENSE). Provided **AS IS, without warranty**, with the license's disclaimer of author/copyright-holder liability. Nothing here promises universal compatibility or unconditional recovery. A disclaimer is not a guarantee of immunity from every legal claim.
@@ -151,3 +217,9 @@ Licensed under the [MIT License](LICENSE). Provided **AS IS, without warranty**,
 Third-party apps and their names, icons and banners belong to their respective owners. App artwork is read from packages already installed on the TV and is not bundled with this project. This project is independent of Apple, Google and TV manufacturers.
 
 DM Sans is bundled under the [SIL Open Font License](app/assets/fonts/OFL.txt), separate from the MIT license for the launcher code. Font source: [Google Fonts / DM Sans](https://github.com/google/fonts/tree/main/ofl/dmsans).
+
+<div align="center">
+<img src="docs/media/still-tv-icon.svg" width="36" height="36" alt="Still TV amber S icon">
+
+Made by [bhanureddy.dev](https://bhanureddy.dev) · [Releases](https://github.com/bhanurp/still-tv/releases) · [Report an issue](https://github.com/bhanurp/still-tv/issues)
+</div>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Still TV</title>
+  <desc id="desc">The Still TV S mark in neon amber on a rounded charcoal square.</desc>
+  <rect width="96" height="96" rx="20" fill="#18181B"/>
+  <path fill="#FFD166" d="M25,26 L71,26 L71,35 L35,35 L35,43 L62,43 Q71,43 71,52 L71,61 Q71,70 62,70 L25,70 L25,61 L61,61 L61,53 L34,53 Q25,53 25,44 Z"/>
+</svg>
