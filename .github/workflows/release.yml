@@ -1,0 +1,143 @@
+name: Release Android APK
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to release (for example v0.1.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Check out the existing release tag
+        uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+
+      - name: Verify versionName matches the tag
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+
+          tag = os.environ['RELEASE_TAG']
+          if not re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?', tag):
+              raise SystemExit('Expected a version tag such as v0.1.0 or v0.2.0-rc.1')
+          manifest = ET.parse('app/AndroidManifest.xml').getroot()
+          version = manifest.get('{http://schemas.android.com/apk/res/android}versionName')
+          if version != tag[1:]:
+              raise SystemExit(f'versionName {version!r} must match tag {tag!r} without v')
+          print(f'Releasing versionName {version}; versionCode is independent.')
+          PY
+
+      - name: Prepare verified local toolchain
+        run: python3 tools/bootstrap.py
+
+      - name: Test
+        run: sh test.sh
+
+      - name: Restore required release signing key
+        env:
+          STILL_SIGNING_KEYSTORE_BASE64: ${{ secrets.STILL_SIGNING_KEYSTORE_BASE64 }}
+          STILL_SIGNING_PASSWORD: ${{ secrets.STILL_SIGNING_PASSWORD }}
+        run: |
+          python3 - <<'PY'
+          import base64
+          import binascii
+          import os
+          from pathlib import Path
+
+          encoded = os.environ.get('STILL_SIGNING_KEYSTORE_BASE64', '')
+          password = os.environ.get('STILL_SIGNING_PASSWORD', '')
+          if not encoded or not password:
+              raise SystemExit('Both release signing secrets are required; no new key will be generated.')
+          if '\n' in password or '\r' in password:
+              raise SystemExit('The signing password must not contain line breaks.')
+          try:
+              keystore = base64.b64decode(''.join(encoded.split()), validate=True)
+          except (ValueError, binascii.Error):
+              raise SystemExit('The signing keystore secret is not valid base64.') from None
+          if not keystore:
+              raise SystemExit('The signing keystore secret is empty.')
+          os.umask(0o077)
+          Path('build').mkdir(exist_ok=True)
+          Path('build/local-signing.jks').write_bytes(keystore)
+          Path('build/signing-password').write_text(password)
+          PY
+
+      - name: Build with the restored key and checksum the APK
+        run: |
+          set -euo pipefail
+          test -s build/local-signing.jks
+          test -s build/signing-password
+          export STILL_SIGNING_PASSWORD="$(cat build/signing-password)"
+          .toolchain/jdk/bin/keytool -list -keystore build/local-signing.jks \
+            -alias still-tv -storepass:env STILL_SIGNING_PASSWORD >/dev/null
+          sh build.sh
+          (cd build && sha256sum still-tv.apk > still-tv.apk.sha256)
+
+      - name: Publish APK and SHA-256 without replacing existing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          release_json="$RUNNER_TEMP/still-release.json"
+          api_error="$RUNNER_TEMP/still-release-api-error"
+          if ! gh api "repos/$GH_REPO/releases/tags/$RELEASE_TAG" >"$release_json" 2>"$api_error"; then
+            if ! grep -Fq '(HTTP 404)' "$api_error"; then
+              cat "$api_error" >&2
+              exit 1
+            fi
+            prerelease=false
+            if [[ "$RELEASE_TAG" == *-* ]]; then prerelease=true; fi
+            gh release create "$RELEASE_TAG" --verify-tag --title "Still TV $RELEASE_TAG" \
+              --generate-notes --prerelease="$prerelease"
+            gh api "repos/$GH_REPO/releases/tags/$RELEASE_TAG" >"$release_json"
+          fi
+          existing_assets="$(python3 -c 'import json,sys; print("\n".join(a["name"] for a in json.load(open(sys.argv[1]))["assets"]))' "$release_json")"
+          if grep -Fxq 'still-tv.apk' <<<"$existing_assets"; then
+            # Builds contain timestamps. Preserve the published APK and derive any missing checksum from it.
+            release_dir="$(mktemp -d "$RUNNER_TEMP/still-release.XXXXXX")"
+            gh release download "$RELEASE_TAG" --pattern still-tv.apk --dir "$release_dir"
+            (cd "$release_dir" && sha256sum still-tv.apk > still-tv.apk.sha256.expected)
+            if grep -Fxq 'still-tv.apk.sha256' <<<"$existing_assets"; then
+              gh release download "$RELEASE_TAG" --pattern still-tv.apk.sha256 --dir "$release_dir"
+              cmp "$release_dir/still-tv.apk.sha256.expected" "$release_dir/still-tv.apk.sha256"
+              echo 'Existing APK and matching SHA-256 retained unchanged.'
+            else
+              mv "$release_dir/still-tv.apk.sha256.expected" "$release_dir/still-tv.apk.sha256"
+              gh release upload "$RELEASE_TAG" "$release_dir/still-tv.apk.sha256"
+            fi
+          else
+            if grep -Fxq 'still-tv.apk.sha256' <<<"$existing_assets"; then
+              echo 'A checksum exists without its APK. Refusing to replace or invalidate it.' >&2
+              exit 1
+            fi
+            gh release upload "$RELEASE_TAG" build/still-tv.apk build/still-tv.apk.sha256
+          fi
+
+      - name: Remove signing material
+        if: ${{ always() }}
+        run: rm -f -- build/local-signing.jks build/signing-password

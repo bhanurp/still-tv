@@ -1,0 +1,42 @@
+{
+  "tested_on": {
+    "device": "Sony BRAVIA VU1",
+    "android_version": "11",
+    "still_tv_version": "0.2.1",
+    "source_commit": "1b31114e87485a1c78634eec6b4359545ac78606",
+    "date": "2026-10-28"
+  },
+  "priority_experiment": {
+    "still_manifest_priority": 3,
+    "still_registered_priority": 0,
+    "original_registered_priority": 2,
+    "resolved_home": "com.google.android.tvlauncher/.MainActivity",
+    "evidence_id": "ev_f3d6d226372f8a156c700dd00e2ebe880b0302aaa95d6dc5d82c51057cc304da",
+    "scope": "Temporary APK override; released builds keep the standard priority."
+  },
+  "successful_switch": {
+    "original_package": "com.google.android.tvlauncher",
+    "original_installed": true,
+    "original_enabled": false,
+    "resolved_home": "dev.still.launcher/.HomeEntry",
+    "home_button_verified": true,
+    "evidence_id": "ev_3b1ff2f3168cfda4c882cbe79f356761411e4e4fb5f1988a75f3cccf810d22ca"
+  },
+  "reboot": {
+    "boot_id_changed": true,
+    "boot_completed": true,
+    "foreground_component": "dev.still.launcher/.HomeEntry",
+    "stable_foreground_seconds": 32.6,
+    "manual_app_start_during_observation": false,
+    "evidence_id": "ev_b9af523d0cb887653adafe2a38e454bfd6812e244fc34f5606134e3c25a9545a"
+  },
+  "recovery": {
+    "native_enable_confirm_back_verified": true,
+    "native_evidence_id": "ev_47320bdc6089bd160308a67b09382a8c647c3097808172734d5e941934e61189",
+    "independent_adb_reenable_and_restore_verified": true,
+    "adb_evidence_id": "ev_9fe19b2d04780b70556acea27539544058e6b3f9b6298d3323c0176aa7cfdcea",
+    "controlled_java_crash_recovery_verified": true,
+    "crash_evidence_id": "ev_8d57b670880baf5b3ffc117771b6b94af4ffe4a726ed84b7ca71818e743eed43"
+  },
+  "scope": "One TV/firmware. These are sanitized observed results, not a universal compatibility or latency guarantee. Internal capture IDs identify local REA evidence; full captures and system APKs are not published."
+}

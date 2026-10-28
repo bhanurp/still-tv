@@ -146,7 +146,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     root.addView(header, headerLp);
     scroll = new ScrollView(this);
     scroll.setVerticalScrollBarEnabled(false);
-    scroll.setClipChildren(false);
+    scroll.setClipChildren(true); // Keep scrolling content below the fixed header.
     scroll.setFillViewport(true);
     LinearLayout page = column();
     page.setPadding(ui.dp(44), ui.dp(18), ui.dp(44), ui.dp(34));

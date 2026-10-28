@@ -1,0 +1,21 @@
+Sony BRAVIA VU1, Android 11. Still TV test APK declared HOME priority 3.
+Command: adb -s TV_SERIAL shell cmd package query-activities --brief --user 0 -a android.intent.action.MAIN -c android.intent.category.HOME
+
+4 activities found:
+  Activity #0:
+    priority=2 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.google.android.tvlauncher/.MainActivity
+  Activity #1:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    dev.still.launcher/.HomeEntry
+  Activity #2:
+    priority=-999 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.realtek.tv.settings/.FallbackHome
+  Activity #3:
+    priority=-1000 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.android.tv.settings/.system.FallbackHome
+
+After owner-authorized disable of the original for user 0:
+Command: adb -s TV_SERIAL shell cmd package resolve-activity --brief --user 0 -a android.intent.action.MAIN -c android.intent.category.HOME
+priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+dev.still.launcher/.HomeEntry

@@ -2,6 +2,10 @@
 
 A small native Android TV launcher with a spacious, Apple TV–inspired app grid. The top-left wordmark is **bhanureddy.dev**.
 
+[Download stable v0.1.0](https://github.com/bhanurp/still-tv/releases/tag/v0.1.0) · [Watch real-TV D-pad navigation (1080p MP4)](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+
+[![Still TV running on Sony BRAVIA](docs/media/still-tv-home.png)](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4)
+
 - Large app tiles and D-pad focus transitions.
 - **Dark**, **Super Dark** (default), and **Light** themes under **Settings → Appearance → Theme**. Theme choice persists locally.
 - Favorites: hold OK or press Menu on an app to pin/unpin it or open Android app information.
@@ -29,6 +33,16 @@ With an existing compatible toolchain, set `STILL_JAVA_HOME`, `STILL_BUILD_TOOLS
 
 Local builds generate an ignored signing key in `build/`. Keep that key and its password file to sign compatible updates. CI artifacts use temporary build keys and are development builds, not a stable update channel. Do not publish your private signing key.
 
+## Releases
+
+[release.yml](.github/workflows/release.yml) builds and publishes a signed `still-tv.apk` and `still-tv.apk.sha256` when a version tag is pushed. It also supports **Actions → Release Android APK → Run workflow** with an existing tag. The tag must match the manifest's `versionName`, prefixed with `v`.
+
+The workflow requires Actions secrets **STILL_SIGNING_KEYSTORE_BASE64** and **STILL_SIGNING_PASSWORD** for the existing `still-tv` signing alias. It fails if signing material is absent or invalid, cleans it up after the job, and preserves published APKs/checksums on reruns. Keep using the same key for compatible updates; never commit signing material or attach it to releases.
+
+The first stable release is **v0.1.0**, using the current launcher. Its Android **versionCode is 4**, higher than the earlier preview builds, so it can update those installations. The existing v0.2.0/v0.2.1 preview tags remain historical releases. Future Android version codes must continue increasing independently of the public version name.
+
+The [navigation recording](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4) comes from the actual TV at normal playback speed, using ADB-injected D-pad input. It is an interface demonstration, not a remote-to-photon latency benchmark. Recording can add load. Only video-container metadata is removed; video frames and timing are preserved. See the [recording details](docs/evidence/navigation.json) and [PERFORMANCE.md](PERFORMANCE.md) for measured rendering samples and their limitations.
+
 ## Preview without changing Home
 
 Connect your TV through authorized ADB. Replace `TV_SERIAL` with its connected ADB serial/address:
@@ -51,11 +65,46 @@ If the Home entry was previously disabled by restoration, first select **Use Sti
 
 **Settings → Restore original launcher** removes only Still TV’s Home entry from selection and opens the saved original launcher. Still TV remains available in Apps. Verify recovery on your own firmware before switching. Never uninstall the original launcher.
 
-## Firmware that prioritizes the original Home
+## Sony BRAVIA: making Still TV the actual Home
 
-Some TVs give their built-in launcher a higher HOME priority. Android caps positive priorities for ordinary apps at zero, so changing Still TV's manifest does not override it. On the tested Sony Android 11 TV, disabling the original for the current user lets Still TV handle Home while the original remains installed.
+The default-Home and recovery evidence below was captured on one **Sony BRAVIA VU1 running Android 11**, with the **0.2.1 preview**, before naming the current launcher stable **0.1.0**. The Home/recovery implementation is retained in the stable release. The original package on this TV is `com.google.android.tvlauncher`. This is a record of the tested firmware; identify your own original Home from the snapshot before using these steps.
 
-Only do this after confirming authorized ADB recovery works and saving the original Home snapshot. Enable Still TV's Home entry using **Use Still TV as Home** before disabling the original. Choose the actual package from your own snapshot; package names vary by TV:
+### The tricky parts
+
+| Attempt or edge case | What the TV actually did | Resulting approach |
+|---|---|---|
+| Android's default-Home picker and `set-home-activity` accepted Still TV | The Home button still opened the original, whose HOME filter had priority `2` | Verify actual Home resolution and the remote button, even when the role assignment reports success |
+| Set Still TV's manifest priority to `3` | The APK contained `3`, but Android registered it as `0`; Sony stayed at `2` | Increasing to `1`, `2`, or higher cannot avoid Android's positive-priority cap for ordinary apps; the ineffective override was removed |
+| Inspect the factory launcher instead of its installed update | The factory APK also declared HOME priority `2` | Removing launcher updates would not solve this mismatch; no updates were removed |
+| Open Still TV from a boot-completed receiver | Sony could appear first, then Still TV opened later | This did not meet the first-Home-screen requirement; the final app uses normal HOME selection, without a boot receiver or overlay permission |
+| Disable the original but preserve its installation | Still TV immediately resolved Home and handled the Home button | Disable only after explicit owner approval and verified recovery; keep the original package installed |
+| Restore a disabled original from an ordinary app | Still TV cannot silently enable another package | Open Android App Info, select **Enable**, confirm **OK**, then press **Back**; recheck before completing restoration |
+| A Java crash while original Home is disabled | Disabling Still TV's own Home entry would leave no usable primary launcher | Keep that entry active and offer recovery on the next Home launch; keep independent ADB recovery available |
+
+Android documents the [priority cap for non-privileged apps](https://developer.android.com/guide/topics/manifest/intent-filter-element#priority). The installed APK and resolver were checked separately; editing the manifest alone is not evidence of an effective priority change.
+
+Captured resolver output from the priority-`3` experiment:
+
+```text
+priority=2 ...
+com.google.android.tvlauncher/.MainActivity
+priority=0 ...
+dev.still.launcher/.HomeEntry
+```
+
+See the [sanitized command output](docs/evidence/sony-bravia-priority.txt) and [verification record](docs/evidence/sony-bravia-home.json). Device addresses, account details, boot identifiers, full system logs and pulled APKs are excluded.
+
+### Switch while keeping the original installed
+
+1. Save `installation-state.json` using the snapshot command above and confirm authorized ADB recovery works.
+2. Open **Settings → Use Still TV as Home** to enable Still TV's Home entry. This is necessary if a previous restoration disabled that entry.
+3. Confirm Still TV appears among HOME candidates before disabling anything:
+
+```sh
+adb -s TV_SERIAL shell cmd package query-activities --brief --user 0 -a android.intent.action.MAIN -c android.intent.category.HOME
+```
+
+4. With the owner's approval, disable the original **for the current user**, then assign and verify Still TV. Replace `ORIGINAL_HOME_PACKAGE` with the package saved from your own TV; do not guess it.
 
 ```sh
 adb -s TV_SERIAL shell pm disable-user --user 0 ORIGINAL_HOME_PACKAGE
@@ -63,7 +112,22 @@ adb -s TV_SERIAL shell cmd package set-home-activity --user 0 dev.still.launcher
 adb -s TV_SERIAL shell cmd package resolve-activity --brief --user 0 -a android.intent.action.MAIN -c android.intent.category.HOME
 ```
 
-Verify Still TV handles the remote Home button and original remains installed. **Restore original launcher** opens the original's Android App Info when it is disabled: select **Enable**, confirm **OK**, then press Back to complete restoration. Android does not allow Still TV to silently re-enable another package. If the TV does not expose Enable or Still TV is unresponsive, use the independent ADB recovery below, which re-enables the saved original before restoring Home. Keep the original package installed throughout.
+On the tested Sony, the resolved component became:
+
+```text
+dev.still.launcher/.HomeEntry
+```
+
+Press Home and verify the screen. Confirm the original remains installed and is listed as disabled:
+
+```sh
+adb -s TV_SERIAL shell pm list packages --user 0 ORIGINAL_HOME_PACKAGE
+adb -s TV_SERIAL shell pm list packages --user 0 -d ORIGINAL_HOME_PACKAGE
+```
+
+5. Verify a real reboot without manually launching Still TV afterward. Our captured check observed a **changed boot ID**, completed Android boot, and `dev.still.launcher/.HomeEntry` in the foreground for **32.6 seconds**. The Home button, six saved favorites and Neon amber were also checked afterward. This is a boot/recovery check, not a startup-time benchmark.
+
+The native restore flow and independent ADB restoration were both tested from the disabled-original state. To switch back, use **Settings → Restore original launcher → Open App information → Enable → OK → Back**. If Enable is unavailable or Still TV is unresponsive, use the recovery tool below. **Keep the original launcher installed throughout.**
 
 ## Recovery
 

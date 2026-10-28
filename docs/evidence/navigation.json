@@ -1,0 +1,15 @@
+{
+  "release": "v0.1.0",
+  "android_version_code": 4,
+  "device": "Sony BRAVIA VU1 / Android 11",
+  "video_url": "https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4",
+  "width": 1920,
+  "height": 1080,
+  "duration_seconds": 10.3424,
+  "sha256": "73fa979df55e8cfb1b213756ba8e37da7b81d10d0a6a1529aeea32d3c3b7eb5b",
+  "capture": "Android screenrecord; navigation-only D-pad input from one authorized ADB shell process",
+  "input_spacing_ms": 350,
+  "processing": "Video packets copied without re-encoding or changing playback speed; container metadata/data track removed, faststart enabled",
+  "limitation": "Interface demonstration, not measured physical-remote input latency. Recording can add load.",
+  "evidence_id": "ev_2c6f119fd264cf861ec1e0db419250ddc7cef2fc5b5167dc70ab9132e99ae96c"
+}
