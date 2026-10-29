@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "date": "2026-10-29",
+  "device_scope": {
+    "platform": "Sony BRAVIA Android 11",
+    "ram_gib": 2,
+    "tv_apps": 20
+  },
+  "baseline": {
+    "release": "v0.1.0",
+    "apk_sha256": "7d43daeee46c0610fa3bfe4bc9be797f039b43492a69ca0331916a86d5ff9c63",
+    "warm_disk_audit": {
+      "onCreate_ms": 139.53337,
+      "first_onApps_ms": 878.082592,
+      "first_artwork_ms": 1133.76737,
+      "first_favorite_artwork_ms": 1133.76737,
+      "all_artwork_ms": 2780.754332,
+      "initial_catalog_settled_ms": 2797.224702,
+      "refresh_ms": [
+        1115.72037,
+        950.660111,
+        961.681555
+      ],
+      "banners_lost_each_refresh": [
+        20,
+        20,
+        20
+      ],
+      "same_tile_kept_focus": [
+        false,
+        false,
+        false
+      ],
+      "accent_tile_preserved": false,
+      "accent_scroll_preserved": false,
+      "accent_cancel_restored": true
+    },
+    "empty_artwork_cache_audit": {
+      "first_onApps_ms": 618.525481,
+      "first_artwork_ms": 900.195073,
+      "first_favorite_artwork_ms": 900.195073,
+      "all_artwork_ms": 3101.688183,
+      "initial_catalog_settled_ms": 3122.69722
+    },
+    "fresh_process_starts": {
+      "total_time_ms": [
+        1643,
+        1181,
+        844,
+        768,
+        973,
+        942,
+        667
+      ],
+      "median_ms": 942
+    },
+    "navigation": {
+      "keys": 100,
+      "interval_ms": 180,
+      "frame_metrics": {
+        "total": {
+          "samples": 800,
+          "p50_ms": 6.632337,
+          "p90_ms": 7.902817,
+          "p95_ms": 8.409311,
+          "p99_ms": 9.484566,
+          "p100_ms": 12.393336,
+          "over_16_67ms": 0
+        },
+        "draw": {
+          "samples": 800,
+          "p50_ms": 0.047444,
+          "p90_ms": 0.371481,
+          "p95_ms": 0.427222,
+          "p99_ms": 0.666519,
+          "p100_ms": 1.008963,
+          "over_16_67ms": 0
+        },
+        "layout_measure": {
+          "samples": 800,
+          "p50_ms": 0.078407,
+          "p90_ms": 0.460482,
+          "p95_ms": 0.563408,
+          "p99_ms": 0.830963,
+          "p100_ms": 1.338519,
+          "over_16_67ms": 0
+        },
+        "sync": {
+          "samples": 800,
+          "p50_ms": 0.216703,
+          "p90_ms": 0.412481,
+          "p95_ms": 0.562481,
+          "p99_ms": 0.778703,
+          "p100_ms": 1.341111,
+          "over_16_67ms": 0
+        }
+      },
+      "dropped_callbacks": 0
+    },
+    "cache": {
+      "total_pngs": 20,
+      "matching_timestamps": 4,
+      "mismatching_timestamps": 16,
+      "valid_version_keys": 0,
+      "legacy_pngs": 20,
+      "sum_bytes": 330541
+    }
+  },
+  "updated": {
+    "build": "development performance build; stable v0.1.0 tag not replaced",
+    "apk_sha256": "9cd136c99231a866cedf1641b8de7141507fb25ed23125a1fb26630596db1bbd",
+    "warm_disk_audit": {
+      "onCreate_ms": 86.301074,
+      "first_onApps_ms": 769.696777,
+      "first_artwork_ms": 815.748666,
+      "first_favorite_artwork_ms": 815.748666,
+      "all_artwork_ms": 1110.988814,
+      "initial_catalog_settled_ms": 1162.096517,
+      "refresh_ms": [
+        65.86663,
+        53.125593,
+        53.171148
+      ],
+      "banners_lost_each_refresh": [
+        0,
+        0,
+        0
+      ],
+      "same_tile_kept_focus": [
+        true,
+        true,
+        true
+      ],
+      "accent_tile_preserved": true,
+      "accent_scroll_preserved": true,
+      "accent_cancel_restored": true
+    },
+    "empty_artwork_cache_audit": {
+      "onCreate_ms": 177.470074,
+      "first_onApps_ms": 1551.843888,
+      "first_artwork_ms": 1783.840925,
+      "first_favorite_artwork_ms": 1783.840925,
+      "all_artwork_ms": 2488.297443,
+      "initial_catalog_settled_ms": 3447.625554,
+      "refresh_ms": [
+        71.078593,
+        52.226555,
+        52.23763
+      ],
+      "banners_lost_each_refresh": [
+        0,
+        0,
+        0
+      ],
+      "same_tile_kept_focus": [
+        true,
+        true,
+        true
+      ],
+      "accent_tile_preserved": true,
+      "accent_scroll_preserved": true,
+      "accent_cancel_restored": true
+    },
+    "fresh_process_starts": {
+      "total_time_ms": [
+        933,
+        523,
+        592,
+        872,
+        866,
+        602,
+        616
+      ],
+      "median_ms": 616
+    },
+    "navigation": {
+      "keys": 100,
+      "interval_ms": 180,
+      "frame_metrics": {
+        "total": {
+          "samples": 800,
+          "p50_ms": 6.60836,
+          "p90_ms": 7.893817,
+          "p95_ms": 8.588451,
+          "p99_ms": 10.399202,
+          "p100_ms": 31.783531,
+          "over_16_67ms": 1
+        },
+        "draw": {
+          "samples": 800,
+          "p50_ms": 0.047963,
+          "p90_ms": 0.371703,
+          "p95_ms": 0.413667,
+          "p99_ms": 0.770889,
+          "p100_ms": 1.010778,
+          "over_16_67ms": 0
+        },
+        "layout_measure": {
+          "samples": 800,
+          "p50_ms": 0.082851,
+          "p90_ms": 0.410963,
+          "p95_ms": 0.461296,
+          "p99_ms": 0.633222,
+          "p100_ms": 1.052889,
+          "over_16_67ms": 0
+        },
+        "sync": {
+          "samples": 800,
+          "p50_ms": 0.217482,
+          "p90_ms": 0.443704,
+          "p95_ms": 0.573185,
+          "p99_ms": 0.810259,
+          "p100_ms": 1.101481,
+          "over_16_67ms": 0
+        }
+      },
+      "dropped_callbacks": 0
+    },
+    "cache": {
+      "total_pngs": 20,
+      "valid_version_keys": 20,
+      "legacy_pngs": 0,
+      "stale_version_keys": 0,
+      "sum_bytes": 330541
+    },
+    "final_foreground_snapshot": {
+      "views": 51,
+      "activities": 1,
+      "pss_kib": 33617,
+      "note": "One foreground snapshot; not a heap-leak or comparable idle-memory benchmark"
+    }
+  },
+  "method": {
+    "refresh_poll_ms": 50,
+    "artwork_timing": "Main-thread onArtwork callback arrival, not visible frame completion",
+    "starts": "am start -S -W, seven starts per build, warm disk cache, not cold boot",
+    "navigation": "Window FrameMetrics.TOTAL_DURATION during synthetic D-pad input, not physical remote latency",
+    "strict_mode": "Audit observed 3 startup main-thread disk reads and 0 writes in both builds; native I/O coverage incomplete"
+  },
+  "limitations": [
+    "Single TV and small unrandomized samples; system load and cache warming vary.",
+    "Warmed navigation was already quick; updated p95/p99 and slow-frame count did not improve.",
+    "Empty-cache first-favorite arrival was slower in the updated paired sample; app discovery varied substantially.",
+    "No claim of universal speedup, zero jank, physical remote latency, or streaming-app improvement."
+  ],
+  "evidence": {
+    "baseline_audit": "ev_8f23851e2b543cd0ae2457c079b77325c861dd63f2308579303195a3c91ccee7",
+    "baseline_cache": "ev_e0191c86b11f341c549184a18b603421a34fce4eb8a951ab0a95d892d02314ba",
+    "updated_audit": "ev_d6a5aedc98920f8418c133bb157fb67bfe2e8ac62ad15c57082a5c8820ec5d41",
+    "updated_cache": "ev_c0805a8c58eefa14249518b6e046fa517bf62b5ef71276d104dc73bb3715031c",
+    "updated_cold_artwork": "ev_02eca7558346609c4efc201304abf230ba11f6d8a137926c99130687ae727500",
+    "baseline_starts": "ev_4e3b36eba36823405329ff224c9e1241724904b80c089a01b6466cd4d10036ed",
+    "updated_starts": "ev_fe3d89f800e12f8e0e094b4d80c96775e7a3bd605105599566ead5a0acdc03b6",
+    "baseline_navigation": "ev_54b50df18fd412695640f99e6c582c7ad71c60263b71eb47db085417b3799abc",
+    "updated_navigation": "ev_b848fdf46c371e77455ac3f66d26acd95cbe1116451ad37c91a43ea5d3975b74",
+    "stable_apk_rollback": "ev_01e69c3100bb43e196e0871af7ecb30d32de4d42432d2ebc068fbbd8af30f746",
+    "final_device_check": "ev_baa8e8221ad9564fab56a9cc7e158f24fa4e3d5eb28fbe8b9467dd0080523495"
+  }
+}

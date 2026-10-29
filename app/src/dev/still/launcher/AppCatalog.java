@@ -12,13 +12,19 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Process;
 import android.util.LruCache;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,14 +34,23 @@ final class AppCatalog implements AutoCloseable {
     final String pkg, label;
     final ComponentName component;
     final ResolveInfo info;
-    Bitmap banner;
+    final long updated;
+    volatile Bitmap banner;
 
-    App(ResolveInfo info, PackageManager pm) {
+    App(ResolveInfo info, PackageManager pm) throws PackageManager.NameNotFoundException {
       this.info = info;
       pkg = info.activityInfo.packageName;
       component = new ComponentName(pkg, info.activityInfo.name);
       CharSequence value = info.loadLabel(pm);
       label = value == null ? pkg : value.toString();
+      updated = pm.getPackageInfo(pkg, 0).lastUpdateTime;
+    }
+
+    boolean matches(App other) {
+      return other != null
+          && component.equals(other.component)
+          && label.equals(other.label)
+          && updated == other.updated;
     }
   }
 
@@ -56,7 +71,19 @@ final class AppCatalog implements AutoCloseable {
       };
   private final Context context;
   private final Handler main = new Handler(Looper.getMainLooper());
-  private final ExecutorService worker = Executors.newSingleThreadExecutor();
+  private final ExecutorService worker =
+      Executors.newSingleThreadExecutor(
+          task ->
+              new Thread(
+                  () -> {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                    task.run();
+                  },
+                  "still-artwork"));
+  // Reuse the images already retained by live tiles, even when the LRU is smaller than the app
+  // list.
+  // Only the worker touches this map; banner publication is visible across threads.
+  private final Map<String, App> previous = new HashMap<>();
   private Listener listener;
   private volatile boolean closed;
   private boolean loading, pending;
@@ -90,36 +117,41 @@ final class AppCatalog implements AutoCloseable {
                   || pkg.equals("com.android.tv.settings")
                   || !seen.add(pkg)) continue;
               try {
-                apps.add(new App(info, pm));
-              } catch (RuntimeException ignored) {
+                App app = new App(info, pm);
+                App existing = previous.get(pkg);
+                apps.add(app.matches(existing) ? existing : app);
+              } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
               }
             }
             Collator order = Collator.getInstance();
             apps.sort((a, b) -> order.compare(a.label, b.label));
+            previous.clear();
+            for (App app : apps) previous.put(app.pkg, app);
             post(
                 () ->
                     listener.onApps(apps)); // Navigation is ready before artwork decoding finishes.
             File directory = new File(context.getCacheDir(), "artwork");
             directory.mkdirs();
+            Map<App, Bitmap> writes = new LinkedHashMap<>();
             for (App app : apps) {
               if (closed || Thread.currentThread().isInterrupted()) break;
+              if (app.banner != null) continue;
               try {
-                long updated = pm.getPackageInfo(app.pkg, 0).lastUpdateTime;
-                String key = app.pkg + "_" + updated;
+                String key = app.pkg + "_" + app.updated;
                 Bitmap bitmap = MEMORY.get(key);
-                File cached = new File(directory, app.pkg + ".png");
-                if (bitmap == null && cached.lastModified() == updated)
+                // Some Android filesystems round File.setLastModified() down to whole seconds.
+                // Keep the exact package version in the filename instead of comparing mtimes.
+                File cached = new File(directory, key + ".png");
+                if (bitmap == null && cached.isFile())
                   bitmap = BitmapFactory.decodeFile(cached.getPath());
                 if (bitmap == null) {
                   bitmap = decode(app.info, pm);
-                  if (bitmap != null)
-                    try (FileOutputStream output = new FileOutputStream(cached)) {
-                      bitmap.compress(Bitmap.CompressFormat.PNG, 100, output);
-                      cached.setLastModified(updated);
-                    } catch (Exception ignored) {
-                    }
+                  if (bitmap != null) writes.put(app, bitmap);
                 }
-                if (bitmap != null) MEMORY.put(key, bitmap);
+                if (bitmap != null) {
+                  MEMORY.put(key, bitmap);
+                  bitmap.prepareToDraw();
+                }
                 Bitmap result = bitmap;
                 post(
                     () -> {
@@ -130,12 +162,38 @@ final class AppCatalog implements AutoCloseable {
                 /* Removed/updated packages retain a readable fallback. */
               }
             }
+            // Deliver every image before PNG compression competes with the visible loading path.
+            for (Map.Entry<App, Bitmap> entry : writes.entrySet()) {
+              if (closed || Thread.currentThread().isInterrupted()) break;
+              App app = entry.getKey();
+              File cached = new File(directory, app.pkg + "_" + app.updated + ".png");
+              File temporary = new File(directory, cached.getName() + ".tmp");
+              boolean written;
+              try (FileOutputStream output = new FileOutputStream(temporary)) {
+                written = entry.getValue().compress(Bitmap.CompressFormat.PNG, 100, output);
+              } catch (Exception ignored) {
+                written = false;
+              }
+              // A process killed during compression must not leave a seemingly valid PNG key.
+              if (!written || !temporary.renameTo(cached)) temporary.delete();
+            }
             // Keep the disk cache bounded without doing I/O on the UI thread.
             File[] files = directory.listFiles();
             long bytes = 0;
             if (files != null) {
-              for (File file : files) bytes += file.length();
-              if (bytes > 8 * 1024 * 1024) for (File file : files) file.delete();
+              HashSet<String> valid = new HashSet<>();
+              for (App app : apps) valid.add(app.pkg + "_" + app.updated + ".png");
+              for (File file : files) {
+                if (!valid.contains(file.getName())) file.delete();
+                if (file.isFile()) bytes += file.length();
+              }
+              // Evict only enough oldest files to meet the budget; retain the rest of the cache.
+              Arrays.sort(files, Comparator.comparingLong(File::lastModified));
+              for (File file : files) {
+                if (bytes <= 8 * 1024 * 1024) break;
+                long size = file.length();
+                if (file.delete()) bytes -= size;
+              }
             }
           } catch (RuntimeException error) {
             post(() -> listener.onError());

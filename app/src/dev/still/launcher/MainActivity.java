@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -47,7 +48,8 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   private LinearLayout groups;
   private ScrollView scroll;
   private View firstFavorite, firstApp;
-  private TextView greeting, date;
+  private TextView greeting, date, brand;
+  private TextClock clock;
   private boolean registered, loaded;
   private String lastFocus;
   private int tileWidth;
@@ -88,13 +90,17 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
 
   @Override
   public void onApps(List<AppCatalog.App> result) {
+    boolean changed = !loaded || !apps.equals(result);
     apps.clear();
     apps.addAll(result);
     loaded = true;
     List<String> available = new ArrayList<>();
     for (AppCatalog.App app : apps) available.add(app.pkg);
-    favorites = LauncherState.favoritePackages(prefs.getString("favorites", null), available);
-    bindGroups();
+    List<String> pinned =
+        LauncherState.favoritePackages(prefs.getString("favorites", null), available);
+    changed |= !favorites.equals(pinned);
+    favorites = pinned;
+    if (changed) bindGroups();
   }
 
   @Override
@@ -126,7 +132,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     LinearLayout header = new LinearLayout(this);
     header.setGravity(Gravity.CENTER_VERTICAL);
     header.setPadding(ui.dp(44), 0, ui.dp(44), 0);
-    TextView brand = new TextView(this);
+    brand = new TextView(this);
     brand.setText("bhanureddy.dev");
     ui.applyBrand(brand);
     header.addView(brand, new LinearLayout.LayoutParams(0, -2, 1));
@@ -134,7 +140,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
         nav("Home", () -> focus(firstFavorite != null ? firstFavorite : firstApp), true));
     header.addView(nav("Apps", () -> focus(firstApp), false));
     header.addView(nav("Settings", this::showSettings, false));
-    TextClock clock = new TextClock(this);
+    clock = new TextClock(this);
     ui.applyBrand(clock);
     clock.setFormat12Hour("h:mm");
     clock.setFormat24Hour("HH:mm");
@@ -396,7 +402,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     Runnable cancel =
         () -> {
           accent = saved;
-          render();
+          applyAccent();
         };
     AlertDialog preview =
         dialog()
@@ -406,7 +412,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
                 accent.ordinal(),
                 (d, which) -> {
                   accent = values[which];
-                  render();
+                  applyAccent();
                 })
             .setPositiveButton(
                 "Keep color", (d, w) -> prefs.edit().putString("accent", accent.name()).apply())
@@ -419,6 +425,12 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
       preview.getWindow().setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
       preview.getWindow().setLayout(ui.dp(330), WindowManager.LayoutParams.WRAP_CONTENT);
     }
+  }
+
+  private void applyAccent() {
+    int color = Color.parseColor(accent.color(theme));
+    brand.setTextColor(color);
+    clock.setTextColor(color);
   }
 
   private void showThemes() {
