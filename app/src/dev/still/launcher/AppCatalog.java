@@ -93,6 +93,11 @@ final class AppCatalog implements AutoCloseable {
     this.listener = listener;
   }
 
+  /** Main-thread submissions share the existing worker rather than creating another thread. */
+  void background(Runnable task) {
+    if (!closed) worker.execute(task);
+  }
+
   void refresh() {
     if (closed) return;
     if (loading) {

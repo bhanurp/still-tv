@@ -2,6 +2,21 @@
 
 Still TV stays on native Android Views without a web runtime or UI framework dependency.
 
+## Local status · 30 October 2026
+
+The greeting was replaced with one compact status/date row. Connection callbacks are registered while Home is visible and removed on stop. Storage and the initial connectivity snapshot share the existing catalog worker; lifecycle generations discard stale tasks/results, and a revision guard prevents an old snapshot from replacing newer callback state. There are no status polling timers or added worker threads. The added normal `ACCESS_NETWORK_STATE` permission only reads system state; the APK does not request `INTERNET`.
+
+| Same-device check | Before status strip | With status strip |
+|---|---:|---:|
+| Fresh-process launch, 7-sample median | 642 ms | 560 ms |
+| Navigation median / p95 frame duration | 6.59 / 8.54 ms | 7.00 / 9.06 ms |
+| Frames above 16.67 ms | 1 / 800 | 0 / 800 |
+| Startup main-thread disk reads / writes observed by StrictMode | — | 3 / 0 |
+
+These short, unrandomized samples use warm disk caches and synthetic input. They do not prove a universal speedup or absence of performance cost: navigation median and p95 increased slightly. In this run all updated navigation frames stayed within 16.67 ms. The status reads are off the UI thread, do not rebuild the grid, and stop observing connectivity when Home is stopped. The date updates on resume, as before.
+
+Native tests replayed actual Ethernet capabilities and simulated callback loss without changing the device's network. Callback cleanup, ignored stale events, restored observation, storage display, all 19 header phrases and 32/36 sp sizing passed. Captive/unverified/local-only text is covered by host formatter tests; no fabricated second network was used. [Measurements, evidence references and limits](docs/evidence/local-status.json).
+
 ## Stable-build audit · 29 October 2026
 
 The audit compared the signed v0.1.0 release with an updated development build on one Sony BRAVIA running Android 11, with 2 GiB RAM and 20 TV apps. Source inspection, native instrumentation, cache inspection, StrictMode, seven process starts per build, and a 100-key navigation sequence covered startup, artwork, refresh, focus, appearance, rendering and lifecycle handling. [Machine-readable measurements and evidence references](docs/evidence/performance-2026-10-29.json) preserve the sampled results.

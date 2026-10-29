@@ -19,10 +19,18 @@ adb -s TV_SERIAL shell am instrument -w -e mode cold-artwork dev.still.launcher.
 adb -s TV_SERIAL shell am instrument -w -e mode navigation dev.still.launcher.tests/.LauncherProbe
 adb -s TV_SERIAL shell am instrument -w -e mode cache dev.still.launcher.tests/.LauncherProbe
 adb -s TV_SERIAL shell am instrument -w dev.still.launcher.tests/.HeaderProbe
+adb -s TV_SERIAL shell am instrument -w dev.still.launcher.tests/.StatusProbe
 adb -s TV_SERIAL uninstall dev.still.launcher.tests
 ```
 
 The target app must already be installed with the same signing certificate.
+`StatusProbe` checks the compact status/date strip, storage completion, actual
+OS network capabilities, simulated callback loss, stale callbacks after stop,
+callback cleanup and restoration. It does not disconnect the TV. Synthetic
+validated/captive/unverified states are covered by the host formatter tests;
+the native probe replays the real capabilities using public APIs. Inspect
+`STILL_TV_STATUS_JSON=` and `failed_checks`.
+
 `HeaderProbe` checks that all 19 approved phrases fit without ellipsis at the
 TV's actual font scale and width, the left header is 32 sp, the clock remains
 36 sp, and rebuilding appearance retains the current phrase. Inspect

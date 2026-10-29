@@ -42,6 +42,36 @@ public final class LauncherStateTest {
     check(LauncherState.Accent.parse("CYAN") == LauncherState.Accent.CYAN, "saved accent");
     System.out.println("Launcher state: 26 checks passed");
     checkHeadlineRotation();
+    checkConnectionStatus();
+  }
+
+  private static void checkConnectionStatus() {
+    check(
+        "Offline".equals(LauncherState.connectionStatus(null, false, false, false)),
+        "no active network is offline");
+    check(
+        "Wi-Fi · Internet connected"
+            .equals(LauncherState.connectionStatus("Wi-Fi", true, true, false)),
+        "validated Wi-Fi is online");
+    check(
+        "Ethernet · Internet connected"
+            .equals(LauncherState.connectionStatus("Ethernet", true, true, false)),
+        "validated Ethernet is online");
+    check(
+        "Wi-Fi · Internet unverified"
+            .equals(LauncherState.connectionStatus("Wi-Fi", true, false, false)),
+        "a Wi-Fi link alone does not prove internet access");
+    check(
+        "Wi-Fi · Sign-in required"
+            .equals(LauncherState.connectionStatus("Wi-Fi", true, false, true)),
+        "captive portal needs sign-in");
+    check(
+        "Wi-Fi · No internet".equals(LauncherState.connectionStatus("Wi-Fi", false, false, false)),
+        "local-only connection");
+    check(
+        "VPN · Internet connected".equals(LauncherState.connectionStatus("VPN", true, true, false)),
+        "VPN connection");
+    System.out.println("Local status: 7 connection checks passed");
   }
 
   private static void checkHeadlineRotation() {

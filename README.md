@@ -31,7 +31,7 @@ https://github.com/user-attachments/assets/307e6c93-1d30-4624-87e2-7080323909da
 
 ## Make room for your apps
 
-Still TV brings a spacious app grid, clear D-pad focus and DM Sans typography to Android TV. No recommendation feeds, autoplay previews, ads, analytics or account service. The launcher requests no network permission.
+Still TV brings a spacious app grid, clear D-pad focus and DM Sans typography to Android TV. No recommendation feeds, autoplay previews, ads, analytics or account service. It does not request Android's `INTERNET` permission. Its single normal permission, `ACCESS_NETWORK_STATE`, reads the TV's connection state.
 
 <table>
 <tr>
@@ -40,7 +40,7 @@ Still TV brings a spacious app grid, clear D-pad focus and DM Sans typography to
 </tr>
 <tr>
 <td width="50%" valign="top"><strong>Choose the mood</strong><br>Dark, Super Dark and Light. Preview Neon amber, Electric violet or Electric cyan before keeping a color.</td>
-<td width="50%" valign="top"><strong>Quiet and local</strong><br>Installed apps supply their own artwork. Background loading and bounded caches keep discovery off the UI thread.</td>
+<td width="50%" valign="top"><strong>Local TV status</strong><br>Connection state, free internal storage and the date replace the greeting. System callbacks and the existing background worker keep it light.</td>
 </tr>
 <tr>
 <td width="50%" valign="top"><strong>Small by design</strong><br>A native Java launcher with no AndroidX or web runtime dependency. The v0.1.0 APK is about 145 KiB.</td>
@@ -49,6 +49,8 @@ Still TV brings a spacious app grid, clear D-pad focus and DM Sans typography to
 </table>
 
 The left header rotates between **19 short phrases**, including “Netflix & Chill,” “Press Play” and “One More Episode,” whenever Home reloads or resumes. The previous phrase is saved to prevent immediate repeats across restarts. Its 32 sp DM Sans type shares the clock's accent; the clock remains 36 sp. Theme and accent previews keep the current phrase. [All 19 phrases fit on the tested TV](docs/evidence/rotating-header.json). **Super Dark + Neon amber** is the default appearance. Accents adapt for contrast in Light.
+
+The compact status strip observes Ethernet, Wi-Fi or VPN connectivity while Home is visible. It distinguishes validated internet access, unverified access, sign-in requirements and offline state. Available internal storage is checked off the UI thread when Home resumes; the date also updates on resume. There are no status polling timers, added worker threads or feed requests. [Local-status checks and performance samples](docs/evidence/local-status.json).
 
 ## Get started
 
@@ -182,7 +184,7 @@ Local builds generate an ignored signing key in `build/`. Keep that key and its 
 
 The workflow requires Actions secrets **STILL_SIGNING_KEYSTORE_BASE64** and **STILL_SIGNING_PASSWORD** for the existing `still-tv` signing alias. It fails if signing material is absent or invalid, cleans it up after the job, and preserves published APKs/checksums on reruns. Keep using the same key for compatible updates; never commit signing material or attach it to releases.
 
-The first stable release is **v0.1.0**, using the current launcher. Its Android **versionCode is 4**, higher than the earlier preview builds, so it can update those installations. The existing v0.2.0/v0.2.1 preview tags remain historical releases. Future Android version codes must continue increasing independently of the public version name.
+Current source prepares **v0.3.0**, with Android **versionCode 5** for compatible updates over v0.1.0 (code 4) and the earlier previews. The first stable release was v0.1.0; the v0.2.0/v0.2.1 preview tags remain historical releases. Android version codes increase independently of the public version name. See the [v0.3.0 release notes](docs/releases/v0.3.0.md).
 
 The [navigation recording](https://github.com/bhanurp/still-tv/releases/download/v0.1.0/still-tv-navigation.mp4) comes from the actual TV at normal playback speed, using ADB-injected D-pad input. It is an interface demonstration, not a remote-to-photon latency benchmark. Recording can add load. Only video-container metadata is removed; video frames and timing are preserved. See the [recording details](docs/evidence/navigation.json) and [PERFORMANCE.md](PERFORMANCE.md) for measured rendering samples and their limitations.
 

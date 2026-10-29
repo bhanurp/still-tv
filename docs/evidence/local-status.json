@@ -1,0 +1,203 @@
+{
+  "date": "2026-10-30",
+  "scope": "One Sony BRAVIA Android 11, 2 GiB RAM; same local-status feature code before the version-only v0.3.0/code5 bump",
+  "permissions": [
+    "android.permission.ACCESS_NETWORK_STATE"
+  ],
+  "internet_permission": false,
+  "implementation": {
+    "storage": "StatFs on existing AppCatalog executor when Home resumes; concurrent requests coalesced",
+    "network": "Default-network callbacks while started/visible, generation and revision guards, initial snapshot on existing worker",
+    "periodic_polling": false,
+    "added_worker_threads": 0,
+    "date": "Updated on resume, as before"
+  },
+  "native_checks": {
+    "StatusProbe": {
+      "initial_storage_ready": true,
+      "date_nonempty": true,
+      "status_font_sp": 13,
+      "status_font_13sp": true,
+      "shared_horizontal_strip": true,
+      "status_view_type": "android.widget.TextView",
+      "date_view_type": "android.widget.TextView",
+      "initial_status": "Ethernet \u00b7 Internet connected  \u00b7  Storage: 6.4 GB free",
+      "real_capabilities_replayed": true,
+      "actual_transport_displayed": true,
+      "replayed_status": "Ethernet \u00b7 Internet connected  \u00b7  Storage: 6.4 GB free",
+      "lost_network_offline": true,
+      "synthetic_capability_transitions": "Covered by host LauncherState.connectionStatus formatter tests; native probe uses public SDK and real OS capabilities only",
+      "old_network_lost_after_new_skipped": "No fabricated or hidden Network constructor used",
+      "stopped_inactive": true,
+      "callback_cleared": true,
+      "stale_callback_current_unchanged": true,
+      "stale_callback_ignored_after_stop": true,
+      "groups_identity_retained": true,
+      "real_observation_restored": true,
+      "final_status": "Ethernet \u00b7 Internet connected  \u00b7  Storage: 6.4 GB free",
+      "failed_checks": 0
+    },
+    "HeaderProbe": {
+      "phrases_fit": 19,
+      "left_sp": 32,
+      "clock_sp": 36,
+      "available_width_px": 608,
+      "appearance_retains_phrase": true
+    },
+    "final_ui_status": "Ethernet \u00b7 Internet connected  \u00b7  Storage: 6.4 GB free",
+    "favorites_preserved": true,
+    "home_and_original_preserved": true
+  },
+  "baseline": {
+    "commit": "d166afb",
+    "starts": {
+      "samples_ms": [
+        642,
+        644,
+        1148,
+        769,
+        529,
+        555,
+        489
+      ],
+      "median_ms": 642
+    },
+    "navigation": {
+      "keys": 100,
+      "frame_metrics": {
+        "total": {
+          "samples": 800,
+          "p50_ms": 6.588946,
+          "p90_ms": 7.914892,
+          "p95_ms": 8.543033,
+          "p99_ms": 10.289472,
+          "p100_ms": 16.839498,
+          "over_16_67ms": 1
+        },
+        "draw": {
+          "samples": 800,
+          "p50_ms": 0.049074,
+          "p90_ms": 0.247704,
+          "p95_ms": 0.36274,
+          "p99_ms": 0.456074,
+          "p100_ms": 0.778185,
+          "over_16_67ms": 0
+        },
+        "layout_measure": {
+          "samples": 800,
+          "p50_ms": 0.086296,
+          "p90_ms": 0.454851,
+          "p95_ms": 0.540037,
+          "p99_ms": 0.725667,
+          "p100_ms": 1.268519,
+          "over_16_67ms": 0
+        },
+        "sync": {
+          "samples": 800,
+          "p50_ms": 0.216926,
+          "p90_ms": 0.400333,
+          "p95_ms": 0.549259,
+          "p99_ms": 0.745852,
+          "p100_ms": 1.197111,
+          "over_16_67ms": 0
+        }
+      },
+      "dropped_callbacks": 0
+    }
+  },
+  "updated": {
+    "starts": {
+      "samples_ms": [
+        560,
+        598,
+        498,
+        578,
+        599,
+        554,
+        545
+      ],
+      "median_ms": 560
+    },
+    "navigation": {
+      "keys": 100,
+      "frame_metrics": {
+        "total": {
+          "samples": 800,
+          "p50_ms": 6.996527,
+          "p90_ms": 8.391808,
+          "p95_ms": 9.056335,
+          "p99_ms": 10.929504,
+          "p100_ms": 14.494374,
+          "over_16_67ms": 0
+        },
+        "draw": {
+          "samples": 800,
+          "p50_ms": 0.049852,
+          "p90_ms": 0.308519,
+          "p95_ms": 0.408223,
+          "p99_ms": 0.645556,
+          "p100_ms": 0.964555,
+          "over_16_67ms": 0
+        },
+        "layout_measure": {
+          "samples": 800,
+          "p50_ms": 0.085,
+          "p90_ms": 0.446407,
+          "p95_ms": 0.526,
+          "p99_ms": 0.628667,
+          "p100_ms": 5.243407,
+          "over_16_67ms": 0
+        },
+        "sync": {
+          "samples": 800,
+          "p50_ms": 0.222519,
+          "p90_ms": 0.485333,
+          "p95_ms": 0.641852,
+          "p99_ms": 0.872186,
+          "p100_ms": 1.502148,
+          "over_16_67ms": 0
+        }
+      },
+      "dropped_callbacks": 0
+    },
+    "unchanged_refresh_ms": [
+      73.565037,
+      52.902112,
+      67.520482
+    ],
+    "same_focused_tile_retained": true,
+    "banners_reset": 0,
+    "accent_keeps_scroll": true,
+    "strict_mode": {
+      "supported": true,
+      "enabled": true,
+      "main_disk_reads": 3,
+      "main_disk_writes": 0,
+      "top_sites": [
+        {
+          "site": "DiskReadViolation:dev.still.launcher.MainActivity.onCreate",
+          "violations": 2
+        },
+        {
+          "site": "DiskReadViolation:dev.still.launcher.Recovery.rememberHome",
+          "violations": 1
+        }
+      ],
+      "scope": "Main thread onCreate through audit completion; StrictMode observations, not all disk syscalls"
+    }
+  },
+  "limits": [
+    "Small, unrandomized samples with warm disk caches; not boot or physical remote latency.",
+    "Navigation p95 rose from8.54ms to9.06ms while sampled over-budget frames went1/800 to0/800; no universal speedup/zero-jank claim.",
+    "Native probe replayed real Ethernet capabilities and simulated callback loss without disconnecting the TV. Captive/unverified/local-only formatting used host tests.",
+    "No fabricated second Network; old-network-loss-after-handoff was reviewed statically rather than simulated on device."
+  ],
+  "evidence": {
+    "before_starts": "ev_fe14cb472d410e27bca8ae09e74e6cc1addf663b01283c206f7852e149d8f9e8",
+    "before_navigation": "ev_ce694c6ca84c250953043a56148feaaa2820fa0eb0e4bcdf5f50cae936b497cc",
+    "after_starts": "ev_09f8ecd1f9c00e3b584ee66445b45b62218a0facc5b9d56aac785cff444558fe",
+    "after_navigation": "ev_788248b62e9efb4961cc589f1e7a3c180392b603f2b6ba11fee7249bac0d233c",
+    "native_status_header": "ev_43acd486288085c1a7c7a3acc447e4326f63a98500d163d8954390e04f4814d1",
+    "refresh_accent_strict": "ev_6cede429cbc541956461818baf5abdcc6d161d64556184e90b5cab5bc8a2ee5b"
+  }
+}

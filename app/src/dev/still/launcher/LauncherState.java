@@ -9,6 +9,16 @@ import java.util.Random;
 public final class LauncherState {
   private LauncherState() {}
 
+  public static String connectionStatus(
+      String transport, boolean internet, boolean validated, boolean captivePortal) {
+    if (transport == null) return "Offline";
+    String state =
+        captivePortal
+            ? "Sign-in required"
+            : validated ? "Internet connected" : internet ? "Internet unverified" : "No internet";
+    return transport + " · " + state;
+  }
+
   private static final List<String> HEADLINES =
       Arrays.asList(
           "Netflix & Chill",

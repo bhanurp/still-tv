@@ -28,7 +28,6 @@ import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   private Recovery recovery;
   private AlertDialog recoveryDialog;
   private AppCatalog catalog;
+  private LocalStatus localStatus;
   private LauncherState.Theme theme;
   private LauncherState.Accent accent;
   private UiStyle ui;
@@ -49,7 +49,8 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   private LinearLayout groups;
   private ScrollView scroll;
   private View firstFavorite, firstApp;
-  private TextView greeting, date, brand;
+  private TextView statusView, date, brand;
+  private String statusLabel = "Checking TV status…";
   private TextClock clock;
   private boolean registered, loaded;
   private String lastFocus;
@@ -79,6 +80,15 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     render();
     catalog = new AppCatalog(this, this);
     catalog.refresh();
+    localStatus =
+        new LocalStatus(
+            this,
+            catalog::background,
+            value -> {
+              statusLabel = value;
+              if (statusView != null && !TextUtils.equals(statusView.getText(), value))
+                statusView.setText(value);
+            });
     IntentFilter filter = new IntentFilter();
     filter.addAction(Intent.ACTION_PACKAGE_ADDED);
     filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -161,15 +171,21 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     scroll.setFillViewport(true);
     LinearLayout page = column();
     page.setPadding(ui.dp(44), ui.dp(18), ui.dp(44), ui.dp(34));
-    greeting = ui.text("", 36, 500, ui.foreground);
-    greeting.setLetterSpacing(-.035f);
-    page.addView(greeting);
+    LinearLayout statusRow = new LinearLayout(this);
+    statusRow.setGravity(Gravity.CENTER_VERTICAL);
+    statusView = ui.text(statusLabel, 13, 400, ui.muted);
+    statusView.setSingleLine(true);
+    statusView.setEllipsize(TextUtils.TruncateAt.END);
+    statusRow.addView(statusView, new LinearLayout.LayoutParams(0, -2, 1));
     date = ui.text("", 13, 400, ui.muted);
-    LinearLayout.LayoutParams dateLp = new LinearLayout.LayoutParams(-1, -2);
-    dateLp.topMargin = ui.dp(10);
-    dateLp.bottomMargin = ui.dp(30);
-    page.addView(date, dateLp);
-    updateGreeting();
+    date.setSingleLine(true);
+    LinearLayout.LayoutParams dateLp = new LinearLayout.LayoutParams(-2, -2);
+    dateLp.setMarginStart(ui.dp(24));
+    statusRow.addView(date, dateLp);
+    LinearLayout.LayoutParams statusLp = new LinearLayout.LayoutParams(-1, -2);
+    statusLp.bottomMargin = ui.dp(18);
+    page.addView(statusRow, statusLp);
+    updateDate();
     groups = column();
     page.addView(groups);
     scroll.addView(page);
@@ -191,11 +207,9 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     return view;
   }
 
-  private void updateGreeting() {
-    if (greeting == null) return;
-    int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-    greeting.setText(hour < 12 ? "Good morning." : hour < 18 ? "Good afternoon." : "Good evening.");
-    date.setText(android.text.format.DateFormat.format("EEEE, d MMMM", new java.util.Date()));
+  private void updateDate() {
+    if (date != null)
+      date.setText(android.text.format.DateFormat.format("EEE, d MMM", new java.util.Date()));
   }
 
   private Button nav(String label, Runnable action, boolean selected) {
@@ -531,9 +545,16 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+    if (localStatus != null) localStatus.start();
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
-    updateGreeting();
+    updateDate();
+    if (localStatus != null) localStatus.refreshStorage();
     if (brand != null) {
       headline =
           LauncherState.nextHeadline(
@@ -554,7 +575,14 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   }
 
   @Override
+  public void onStop() {
+    if (localStatus != null) localStatus.stop();
+    super.onStop();
+  }
+
+  @Override
   public void onDestroy() {
+    if (localStatus != null) localStatus.close();
     if (registered) unregisterReceiver(packages);
     if (catalog != null) catalog.close();
     super.onDestroy();
