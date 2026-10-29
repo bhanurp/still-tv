@@ -23,11 +23,11 @@ https://github.com/user-attachments/assets/307e6c93-1d30-4624-87e2-7080323909da
 <details>
 <summary>View the home-screen screenshot</summary>
 
-![Still TV running on Sony BRAVIA with Neon amber and six favorites](docs/media/still-tv-home.png)
+![Still TV running on Sony BRAVIA with a rotating header and six favorites](docs/media/still-tv-home.png)
 
 </details>
 
-<sub>Actual 1080p TV recording, at normal playback speed, with ADB-injected D-pad input. Video frames and timing are preserved; container metadata is removed. This is a navigation demonstration, not a measurement of physical-remote latency. [Recording details](docs/evidence/navigation.json) · [Rendering measurements and limits](PERFORMANCE.md).</sub>
+<sub>Actual 1080p TV recording, at normal playback speed, with ADB-injected D-pad input. The recording predates the rotating header shown in the screenshot. Video frames and timing are preserved; container metadata is removed. This is a navigation demonstration, not a measurement of physical-remote latency. [Recording details](docs/evidence/navigation.json) · [Rendering measurements and limits](PERFORMANCE.md).</sub>
 
 ## Make room for your apps
 
@@ -48,7 +48,7 @@ Still TV brings a spacious app grid, clear D-pad focus and DM Sans typography to
 </tr>
 </table>
 
-The wordmark is **bhanureddy.dev**, matched to the clock in font, size and accent. **Super Dark + Neon amber** is the default appearance. Accents adapt for contrast in Light.
+The left header rotates between **19 short phrases**, including “Netflix & Chill,” “Press Play” and “One More Episode,” whenever Home reloads or resumes. The previous phrase is saved to prevent immediate repeats across restarts. Its 32 sp DM Sans type shares the clock's accent; the clock remains 36 sp. Theme and accent previews keep the current phrase. [All 19 phrases fit on the tested TV](docs/evidence/rotating-header.json). **Super Dark + Neon amber** is the default appearance. Accents adapt for contrast in Light.
 
 ## Get started
 

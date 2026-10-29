@@ -1,6 +1,9 @@
 import dev.still.launcher.LauncherState;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 public final class LauncherStateTest {
   public static void main(String[] args) {
@@ -38,6 +41,51 @@ public final class LauncherStateTest {
     check(LauncherState.Accent.parse("broken") == LauncherState.Accent.AMBER, "invalid accent");
     check(LauncherState.Accent.parse("CYAN") == LauncherState.Accent.CYAN, "saved accent");
     System.out.println("Launcher state: 26 checks passed");
+    checkHeadlineRotation();
+  }
+
+  private static void checkHeadlineRotation() {
+    Set<String> approved =
+        new HashSet<>(
+            Arrays.asList(
+                "Netflix & Chill",
+                "Stream & Dream",
+                "Binge & Bliss",
+                "Popcorn & Play",
+                "Pause Real Life",
+                "One More Episode",
+                "Just One More",
+                "Press Play",
+                "Enjoy the Show",
+                "Movie Night",
+                "Cinema Time",
+                "Lights Down",
+                "Get Comfy",
+                "Couch Mode On",
+                "Weekend Mode",
+                "Watch & Unwind",
+                "Stay Tuned",
+                "Roll the Credits",
+                "Good Vibes Only"));
+    Set<String> seen = new HashSet<>();
+    Random random = new Random(2026);
+    String previous = null;
+    for (int reload = 0; reload < 1000; reload++) {
+      String next = LauncherState.nextHeadline(previous, random);
+      check(approved.contains(next), "only approved phrases: " + next);
+      check(!next.equals(previous), "no immediate repeat after " + previous);
+      seen.add(next);
+      previous = next;
+    }
+    check(seen.equals(approved), "every approved phrase can appear");
+    check(
+        approved.contains(LauncherState.nextHeadline("removed phrase", random)),
+        "old saved phrase is replaced safely");
+    for (String phrase : approved) {
+      int words = phrase.split(" ").length;
+      check(words >= 2 && words <= 3, "two or three words: " + phrase);
+    }
+    System.out.println("Header rotation: 19 approved phrases and 1000 reloads passed");
   }
 
   private static double contrast(String a, String b) {

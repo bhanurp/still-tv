@@ -23,7 +23,7 @@ STILL_PROBE="$PWD/build/device-tests"
 mkdir -p "$STILL_PROBE/classes" "$STILL_PROBE/dex"
 find "$STILL_PROBE/classes" "$STILL_PROBE/dex" -type f \( -name '*.class' -o -name '*.dex' \) -delete
 "$STILL_TOOLS/aapt2" link -o "$STILL_PROBE/base.apk" -I "$STILL_PLATFORM" --manifest tests/device/AndroidManifest.xml
-"$STILL_JAVA/bin/javac" --release 8 -classpath "$STILL_PLATFORM" -d "$STILL_PROBE/classes" tests/device/LauncherProbe.java
+"$STILL_JAVA/bin/javac" --release 8 -classpath "$STILL_PLATFORM" -d "$STILL_PROBE/classes" tests/device/*.java
 find "$STILL_PROBE/classes" -name '*.class' > "$STILL_PROBE/classes.txt"
 "$STILL_TOOLS/d8" --lib "$STILL_PLATFORM" --min-api 26 --output "$STILL_PROBE/dex" @"$STILL_PROBE/classes.txt"
 cp "$STILL_PROBE/base.apk" "$STILL_PROBE/unsigned.apk"

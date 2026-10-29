@@ -4,9 +4,39 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
 
 public final class LauncherState {
   private LauncherState() {}
+
+  private static final List<String> HEADLINES =
+      Arrays.asList(
+          "Netflix & Chill",
+          "Stream & Dream",
+          "Binge & Bliss",
+          "Popcorn & Play",
+          "Pause Real Life",
+          "One More Episode",
+          "Just One More",
+          "Press Play",
+          "Enjoy the Show",
+          "Movie Night",
+          "Cinema Time",
+          "Lights Down",
+          "Get Comfy",
+          "Couch Mode On",
+          "Weekend Mode",
+          "Watch & Unwind",
+          "Stay Tuned",
+          "Roll the Credits",
+          "Good Vibes Only");
+
+  /** Pick uniformly from the approved phrases, excluding the previous choice. */
+  public static String nextHeadline(String previous, Random random) {
+    int excluded = HEADLINES.indexOf(previous);
+    int index = random.nextInt(HEADLINES.size() - (excluded < 0 ? 0 : 1));
+    return HEADLINES.get(excluded >= 0 && index >= excluded ? index + 1 : index);
+  }
 
   public enum Theme {
     DARK("Dark", "#19191C", "#FAFAFC", "#B9B9C0", "#29292E", "#FFFFFF"),

@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /** Lifecycle, screen composition and menus; rendering/data/recovery are separate. */
 public final class MainActivity extends Activity implements AppCatalog.Listener {
@@ -52,6 +53,7 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   private TextClock clock;
   private boolean registered, loaded;
   private String lastFocus;
+  private String headline = "Press Play";
   private int tileWidth;
   private final BroadcastReceiver packages =
       new BroadcastReceiver() {
@@ -133,8 +135,11 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
     header.setGravity(Gravity.CENTER_VERTICAL);
     header.setPadding(ui.dp(44), 0, ui.dp(44), 0);
     brand = new TextView(this);
-    brand.setText("bhanureddy.dev");
+    brand.setText(headline);
     ui.applyBrand(brand);
+    brand.setTextSize(32);
+    brand.setSingleLine(true);
+    brand.setEllipsize(TextUtils.TruncateAt.END);
     header.addView(brand, new LinearLayout.LayoutParams(0, -2, 1));
     header.addView(
         nav("Home", () -> focus(firstFavorite != null ? firstFavorite : firstApp), true));
@@ -529,6 +534,13 @@ public final class MainActivity extends Activity implements AppCatalog.Listener 
   public void onResume() {
     super.onResume();
     updateGreeting();
+    if (brand != null) {
+      headline =
+          LauncherState.nextHeadline(
+              prefs.getString("last_headline", null), ThreadLocalRandom.current());
+      brand.setText(headline);
+      prefs.edit().putString("last_headline", headline).apply();
+    }
   }
 
   @Override

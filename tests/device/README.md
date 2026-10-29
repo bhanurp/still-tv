@@ -18,12 +18,21 @@ adb -s TV_SERIAL shell am instrument -w -e mode audit dev.still.launcher.tests/.
 adb -s TV_SERIAL shell am instrument -w -e mode cold-artwork dev.still.launcher.tests/.LauncherProbe
 adb -s TV_SERIAL shell am instrument -w -e mode navigation dev.still.launcher.tests/.LauncherProbe
 adb -s TV_SERIAL shell am instrument -w -e mode cache dev.still.launcher.tests/.LauncherProbe
+adb -s TV_SERIAL shell am instrument -w dev.still.launcher.tests/.HeaderProbe
 adb -s TV_SERIAL uninstall dev.still.launcher.tests
 ```
 
 The target app must already be installed with the same signing certificate.
-The instrumentation opens a fresh MainActivity task, without changing preferences,
-clearing app data, touching recovery flags or changing any Home/package state.
+`HeaderProbe` checks that all 19 approved phrases fit without ellipsis at the
+TV's actual font scale and width, the left header is 32 sp, the clock remains
+36 sp, and rebuilding appearance retains the current phrase. Inspect
+`STILL_TV_HEADER_JSON=` for errors. Its fresh Activity launch advances the saved
+phrase through the launcher's normal resume behavior.
+
+The instrumentation opens a fresh MainActivity task. The launcher naturally
+advances its saved header phrase on resume; favorites and appearance settings
+are preserved. The probe does not clear app data, touch recovery flags or change
+Home/package state.
 Normal launcher cache reads/writes still occur. If safe mode prevents catalog
 creation, the report records an error; the helper does not dismiss recovery.
 Only the explicitly selected `cold-artwork` mode deletes regular files directly

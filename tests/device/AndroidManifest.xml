@@ -2,4 +2,5 @@
     <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35" />
     <application android:label="Still TV device probe" android:allowBackup="false" />
     <instrumentation android:name=".LauncherProbe" android:targetPackage="dev.still.launcher" android:functionalTest="true" android:handleProfiling="false" />
+    <instrumentation android:name=".HeaderProbe" android:targetPackage="dev.still.launcher" android:functionalTest="true" android:handleProfiling="false" />
 </manifest>

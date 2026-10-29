@@ -38,8 +38,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Dependency-free, owner-invoked probe. No preferences, package states, or Home aliases are
- * written.
+ * Dependency-free, owner-invoked probe. Favorites, appearance and Home states are preserved;
+ * normal launcher resumes may advance its saved header phrase.
  */
 public final class LauncherProbe extends Instrumentation {
   private final AtomicLong firstAppsNs = new AtomicLong();

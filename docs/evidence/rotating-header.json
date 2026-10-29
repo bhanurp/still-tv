@@ -1,0 +1,26 @@
+{
+  "native": {
+    "phrases_fit": 19,
+    "left_sp": 32,
+    "clock_sp": 36,
+    "available_width_px": 608,
+    "appearance_retains_phrase": true
+  },
+  "observed_phrases": [
+    "Press Play",
+    "Enjoy the Show",
+    "Press Play",
+    "Enjoy the Show",
+    "Couch Mode On"
+  ],
+  "helper_removed": true,
+  "default_preserved": true,
+  "favorites_preserved": true,
+  "date": "2026-10-30",
+  "approved_phrases": 19,
+  "excluded_phrase": "Escape the Ordinary",
+  "selection": "Uniform random choice excluding the immediately previous phrase; previous choice saved across restarts",
+  "trigger": "Activity onResume; appearance rendering retains the current phrase",
+  "host_test": "1000 seeded reloads cover all approved phrases, no immediate repeats, and an obsolete saved phrase",
+  "evidence_id": "ev_1b71f8db5a3d01e170a2e00fb680353570464955b3b46492ab30b3e50168656a"
+}
